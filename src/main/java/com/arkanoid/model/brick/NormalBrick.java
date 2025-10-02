@@ -3,7 +3,7 @@ package com.arkanoid.model.brick;
 /**
  * Lớp gạch thường (Normal Brick).
  * - Đây là loại gạch cơ bản nhất trong game.
- * - Bị phá hủy chỉ sau **1 lần** va chạm với bóng.
+ * - Bị phá hủy chỉ sau 1 lần va chạm với bóng.
  */
 public final class NormalBrick extends Brick {
 
@@ -16,7 +16,6 @@ public final class NormalBrick extends Brick {
      * @param h chiều cao
      */
     public NormalBrick(double x, double y, double w, double h) {
-        // hitPoints = 1 (bị phá ngay sau 1 lần va chạm)
-        super(x, y, w, h, /*hitPoints=*/1, "NORMAL");
+        super(x, y, w, h, 1, "NORMAL");
     }
 }

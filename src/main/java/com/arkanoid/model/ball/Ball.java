@@ -64,7 +64,9 @@ public final class Ball extends MovableObject {
 
         // Quyết định hướng ngang
         directionX = (int) Math.signum(offset);
-        if (directionX == 0) directionX = 1; // Tránh trường hợp đứng yên
+        if (directionX == 0) {
+            directionX = 1; // Tránh trường hợp đứng yên
+        }
         directionY = -1; // Luôn bật lên
         dx = speed * directionX;
         dy = speed * directionY;

@@ -44,7 +44,7 @@ public abstract class GameObject {
         return new Rectangle2D(x, y, width, height);
     }
 
-    // ---------------- Tiện ích tính toán hình học -----------------------------
+    // Tính toán hình học
     public double getRight() {
         return x + width; // Toạ độ X cạnh phải
     }
@@ -61,7 +61,7 @@ public abstract class GameObject {
         return y + height / 2; // Toạ độ Y tâm đối tượng
     }
 
-    // ---------------- Getter / Setter -----------------------------------------
+    // Getter / Setter
     public double getX() {
         return x;
     }
