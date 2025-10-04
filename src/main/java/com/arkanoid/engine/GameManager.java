@@ -8,8 +8,6 @@ import com.arkanoid.model.powerup.*;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
-
-import javax.swing.*;
 import java.util.*;
 
 /**
@@ -23,17 +21,20 @@ public final class GameManager {
     private Ball ball;
     private GameState state = GameState.MENU;               // Trạng thái hiện tại
     private int score = 0;
+    private final Renderer renderer;
     private int lives = Config.START_LIVES;
     private volatile boolean leftPressed = false;
     private volatile boolean rightPressed = false;
 
     public GameManager(GraphicsContext gc) {
+        this.renderer = new Renderer(gc);
         // Vòng lặp khung hình chính
         this.loop = new AnimationTimer() {
             @Override public void handle(long now) {
                 if (state == GameState.RUNNING) {
                     updateGame();  // Cập nhật logic
                 }
+                renderer.renderAll(state, score, lives, bricks, paddle, ball); // cập nhật đồ họa
             }
         };
     }
@@ -159,8 +160,11 @@ public final class GameManager {
                     ball.bounceVertical();
                 else
                     ball.bounceHorizontal();
-
                 b.takeHit();
+                if (b.isDestroyed()) {
+                    score += 100;
+                    it.remove();
+                }
                 break;
             }
         }
