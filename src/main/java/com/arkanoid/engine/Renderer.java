@@ -1,13 +1,11 @@
 package com.arkanoid.engine;
+
 import com.arkanoid.model.ball.Ball;
 import com.arkanoid.model.brick.Brick;
-import com.arkanoid.model.brick.NormalBrick;
-import com.arkanoid.model.brick.StrongBrick;
 import com.arkanoid.model.paddle.Paddle;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-
 import java.util.List;
 /**
  * Lớp phụ trách vẽ khung hình.
@@ -34,9 +32,9 @@ public class Renderer {
      */
     private void drawHud(int score, int lives) {
         gc.setFill(Color.WHITE);
-        gc.setFont(Font.font("Consolas", 18));
+        gc.setFont(Font.font("Consolas", 16));
         gc.fillText("Scores: " + score, 16, 24);
-        gc.fillText("Lives: " + lives, Config.VIEW_WIDTH - 100, 24);
+        gc.fillText("Lives: " + lives, 150, 24);
     }
 
     /**
@@ -57,27 +55,14 @@ public class Renderer {
      * @param b gạch.
      */
     private void drawBrick(Brick b) {
-        // Chọn màu theo loại gạch
-        if (b instanceof StrongBrick) {
-            gc.setFill(Color.web("#EF476F"));
-            gc.fillRoundRect(b.getX(), b.getY(), b.getWidth(), b.getHeight(), 6, 6);
-            gc.setFill(Color.color(1,1,1,0.25));
-        } else if (b instanceof NormalBrick) {
-            gc.setFill(Color.web("#7AE582"));
-            gc.fillRoundRect(b.getX(), b.getY(), b.getWidth(), b.getHeight(), 6, 6);
-        } else {
-            gc.setFill(Color.SILVER);
-            gc.fillRect(b.getX(), b.getY(), b.getWidth(), b.getHeight());
-        }
+        b.render(gc);
     }
 
     /**
      * Vẽ paddle.
-     * @param paddle.
      */
     private void drawPaddle(Paddle p) {
-        gc.setFill(Color.web("#22CCFF"));
-        gc.fillRoundRect(p.getX(), p.getY(), p.getWidth(), p.getHeight(), 8, 8);
+        p.render(gc);
     }
 
     /**
@@ -85,8 +70,7 @@ public class Renderer {
      * @param ball bóng.
      */
     private void drawBall(Ball ball) {
-        gc.setFill(Color.web("#FFD166"));
-        gc.fillOval(ball.getX(), ball.getY(), ball.getWidth(), ball.getHeight());
+        ball.render(gc);
     }
 
     /**
@@ -114,10 +98,10 @@ public class Renderer {
 
         // Nhắc nhở trạng thái.
         switch (state) {
-            case MENU -> drawBanner("Nhấn SPACE để bắt đầu");
-            case PAUSED -> drawBanner("Tạm dừng — nhấn P để tiếp tục");
-            case GAME_OVER -> drawBanner("Thua — nhấn SPACE để chơi lại");
-            case WIN -> drawBanner("Chiến thắng! — nhấn SPACE");
+            case MENU -> drawBanner("PRESS SPACE TO START");
+            case PAUSED -> drawBanner("PAUSED – PRESS P TO RESUME");
+            case GAME_OVER -> drawBanner("GAME OVER – PRESS SPACE TO RESTART");
+            case WIN -> drawBanner("YOU WIN! – PRESS SPACE TO RESTART");
             default -> {}
         }
     }

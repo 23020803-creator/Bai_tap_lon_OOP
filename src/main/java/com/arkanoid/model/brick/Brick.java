@@ -21,7 +21,7 @@ public abstract class Brick extends GameObject {
      * @param w chiều rộng
      * @param h chiều cao
      * @param hitPoints số lần cần đánh để phá gạch
-     * @param type loại gạch (dùng để phân loại hiển thị/logic)
+     * @param type loại gạch
      */
     protected Brick(double x, double y, double w, double h, int hitPoints, String type) {
         super(x, y, w, h);

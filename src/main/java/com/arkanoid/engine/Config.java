@@ -1,9 +1,9 @@
 package com.arkanoid.engine;
 
 /**
- * Lớp chứa các hằng số cấu hình tập trung của game.
+ * Lớp chứa các hằng số cấu hình của game.
  *
- * <p>Mọi thông số về kích thước, tốc độ, số mạng... đều được định nghĩa ở đây
+ * Mọi thông số về kích thước, tốc độ, số mạng... đều được định nghĩa ở đây
  * để dễ dàng thay đổi và quản lý.
  */
 public final class Config {
@@ -14,7 +14,7 @@ public final class Config {
     public static final int VIEW_HEIGHT = 600;
 
     // Cấu hình thanh trượt (Paddle)
-    public static final int PADDLE_WIDTH = 100;
+    public static final int PADDLE_WIDTH = 120;
     public static final int PADDLE_HEIGHT = 16;
     public static final int PADDLE_SPEED = 5;
 

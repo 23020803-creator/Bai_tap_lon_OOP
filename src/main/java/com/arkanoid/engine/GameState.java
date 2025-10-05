@@ -1,7 +1,7 @@
 package com.arkanoid.engine;
 
 /**
- * Biểu diễn các trạng thái cấp cao (toàn cục) của trò chơi.
+ * Biểu diễn các trạng thái của trò chơi.
  */
 public enum GameState {
     MENU,       // Màn hình menu chính, chờ người chơi bắt đầu
