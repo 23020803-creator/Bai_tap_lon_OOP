@@ -35,8 +35,8 @@ public class Renderer {
     private void drawHud(int score, int lives) {
         gc.setFill(Color.WHITE);
         gc.setFont(Font.font("Consolas", 18));
-        gc.fillText("Điểm: " + score, 16, 24);
-        gc.fillText("Mạng: " + lives, Config.VIEW_WIDTH - 16, 24);
+        gc.fillText("Scores: " + score, 16, 24);
+        gc.fillText("Lives: " + lives, Config.VIEW_WIDTH - 100, 24);
     }
 
     /**

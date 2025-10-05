@@ -1,6 +1,5 @@
 package com.arkanoid.engine;
 
-import com.arkanoid.model.*;
 import com.arkanoid.model.ball.Ball;
 import com.arkanoid.model.brick.*;
 import com.arkanoid.model.paddle.Paddle;
@@ -16,7 +15,7 @@ import java.util.*;
  */
 public final class GameManager {
     private final List<Brick> bricks = new ArrayList<>();   // Danh sách gạch
-    private final AnimationTimer loop;                      // Vòng lặp chính của game (60FPS)
+    private final AnimationTimer loop;                      // Vòng lặp chính của game
     private Paddle paddle;
     private Ball ball;
     private GameState state = GameState.MENU;               // Trạng thái hiện tại
