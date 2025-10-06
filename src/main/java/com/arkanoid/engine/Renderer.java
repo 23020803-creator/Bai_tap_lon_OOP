@@ -3,6 +3,7 @@ package com.arkanoid.engine;
 import com.arkanoid.model.ball.Ball;
 import com.arkanoid.model.brick.Brick;
 import com.arkanoid.model.paddle.Paddle;
+import com.arkanoid.model.powerup.PowerUp;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -76,20 +77,19 @@ public class Renderer {
     /**
      * Vẽ toàn bộ khung hình dựa trên state hiện tại.
      */
-    public void renderAll(
-            GameState state,
-            int score,
-            int lives,
-            List<Brick> bricks,
-            Paddle paddle,
-            Ball ball
-    ) {
+    public void renderAll(GameState state, int score, int lives,
+            List<Brick> bricks, Paddle paddle, Ball ball, List<PowerUp> powerUps) {
         drawBackground();
         drawHud(score, lives);
 
         // Bricks
         for (Brick b : bricks) {
             if (!b.isDestroyed()) drawBrick(b);
+        }
+
+        // PowerUps
+        for (PowerUp p : powerUps) {
+            p.render(gc);
         }
 
         // Paddle & Ball

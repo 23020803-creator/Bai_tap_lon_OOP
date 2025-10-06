@@ -15,6 +15,7 @@ import java.util.*;
  */
 public final class GameManager {
     private final List<Brick> bricks = new ArrayList<>();   // Danh sách gạch
+    private final List<PowerUp> powerUps = new ArrayList<>(); // Danh sách PowerUp đang rơi
     private final AnimationTimer loop;                      // Vòng lặp chính của game
     private Paddle paddle;
     private Ball ball;
@@ -33,7 +34,7 @@ public final class GameManager {
                 if (state == GameState.RUNNING) {
                     updateGame();  // Cập nhật logic
                 }
-                renderer.renderAll(state, score, lives, bricks, paddle, ball); // cập nhật đồ họa
+                renderer.renderAll(state, score, lives, bricks, paddle, ball, powerUps); // cập nhật đồ họa
             }
         };
     }
@@ -162,9 +163,25 @@ public final class GameManager {
                 b.takeHit();
                 if (b.isDestroyed()) {
                     score += 100;
+                    maybeSpawnPowerUp(b);
                     it.remove();
                 }
                 break;
+            }
+        }
+
+        // PowerUp rơi xuống và kiểm tra ăn
+        Iterator<PowerUp> pit = powerUps.iterator();
+        while (pit.hasNext()) {
+            PowerUp p = pit.next();
+            p.update();
+            if (p.getY() > Config.VIEW_HEIGHT) {
+                pit.remove(); // rơi khỏi màn hình
+                continue;
+            }
+            if (p.getBounds().intersects(paddle.getBounds())) {
+                p.applyEffect(paddle, ball);
+                pit.remove();
             }
         }
 
@@ -192,10 +209,23 @@ public final class GameManager {
         return Rectangle2D.EMPTY;
     }
 
+    /**
+     * Sinh PowerUp mở rộng Paddle tại vị trí gạch bị phá.
+     */
+    private void maybeSpawnPowerUp(Brick source) {
+        double centerX = source.getCenterX();
+        double y = source.getCenterY();
+        // Tạo PowerUp mở rộng Paddle duy nhất
+        PowerUp p = new ExpandPaddlePowerUp(centerX - 12, y, 24, 12);
+        powerUps.add(p);
+    }
+
+
     // Setter cho cờ phím
     public void setLeftPressed(boolean v) {
         leftPressed = v;
     }
+
     public void setRightPressed(boolean v) {
         rightPressed = v;
     }

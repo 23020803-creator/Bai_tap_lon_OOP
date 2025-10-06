@@ -2,6 +2,7 @@ package com.arkanoid.model.paddle;
 
 import com.arkanoid.engine.Config;
 import com.arkanoid.model.object.MovableObject;
+import com.arkanoid.model.powerup.PowerUp;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -13,6 +14,7 @@ import javafx.scene.paint.Color;
 public final class Paddle extends MovableObject {
     private final double baseSpeed;      // Tốc độ mặc định ban đầu
     private double speed;                // Tốc độ hiện tại (có thể thay đổi do PowerUp)
+    private PowerUp currentPowerUp;      // PowerUp đang được áp dụng (nếu có)
 
     /**
      * Khởi tạo Paddle.
@@ -37,6 +39,16 @@ public final class Paddle extends MovableObject {
     /** Di chuyển sang phải (không vượt ra ngoài biên phải màn hình). */
     public void moveRight() {
         setX(Math.min(Config.VIEW_WIDTH - getWidth(), getX() + speed));
+    }
+
+    /**
+     * Áp dụng hiệu ứng PowerUp mới cho Paddle.
+     */
+    public void applyPowerUp(PowerUp powerUp) {
+        if (currentPowerUp != null) {
+            currentPowerUp.removeEffect(this, null);
+        }
+        currentPowerUp = powerUp;
     }
 
     /** Đặt lại tốc độ và trạng thái ban đầu (dùng khi PowerUp hết hiệu lực). */
