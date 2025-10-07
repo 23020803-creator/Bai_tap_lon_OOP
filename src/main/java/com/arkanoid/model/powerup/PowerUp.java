@@ -68,8 +68,9 @@ public abstract class PowerUp extends MovableObject {
     @Override
     public void render(GraphicsContext gc) {
         switch (getPowerUpType()) {
-            case EXPAND_PADDLE -> gc.setFill(Color.RED);     // Mở rộng Paddle = đỏ
-            default            -> gc.setFill(Color.WHITE);   // Các loại khác (nếu có)
+            case EXPAND_PADDLE -> gc.setFill(Color.RED);    // Mở rộng Paddle = đỏ
+            case FAST_BALL ->  gc.setFill(Color.GREEN);     // Tăng tốc bóng = xanh
+            default            -> gc.setFill(Color.WHITE);  // Các loại khác (nếu có)
         }
         gc.fillOval(getX(), getY(), getWidth(), getHeight());
     }

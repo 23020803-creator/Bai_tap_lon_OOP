@@ -8,4 +8,5 @@ package com.arkanoid.model.powerup;
  */
 public enum PowerUpType {
     EXPAND_PADDLE, // PowerUp mở rộng Paddle
+    FAST_BALL      // PowerUp tăng tốc bóng
 }
