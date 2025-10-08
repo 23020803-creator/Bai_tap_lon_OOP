@@ -16,6 +16,7 @@ public abstract class PowerUp extends MovableObject {
     private final PowerUpType type;       // Loại PowerUp (EXPAND_PADDLE, FAST_BALL, ...)
     private final int durationFrames;     // Thời gian hiệu lực tính theo số frame
     private int ageFrames = 0;            // Số frame đã tồn tại kể từ khi xuất hiện
+    private boolean applied = false;      // PowerUp đã được kích hoạt hay chưa
 
     /**
      * Khởi tạo một PowerUp.
@@ -63,6 +64,22 @@ public abstract class PowerUp extends MovableObject {
     }
 
     /**
+     * Đánh dấu rằng PowerUp đã được kích hoạt.
+     */
+    protected void markApplied() {
+        applied = true;
+    }
+
+    /**
+     * Kiểm tra xem PowerUp này đã được kích hoạt hay chưa.
+     *
+     * @return true nếu đã được ăn và áp dụng hiệu ứng, ngược lại trả về false.
+     */
+    public boolean isApplied() {
+        return applied;
+    }
+
+    /**
      * Vẽ PowerUp lên canvas của JavaFX.
      */
     @Override
@@ -70,6 +87,7 @@ public abstract class PowerUp extends MovableObject {
         switch (getPowerUpType()) {
             case EXPAND_PADDLE -> gc.setFill(Color.RED);    // Mở rộng Paddle = đỏ
             case FAST_BALL ->  gc.setFill(Color.GREEN);     // Tăng tốc bóng = xanh
+            case EXTRA_LIFE -> gc.setFill(Color.YELLOW);    // Thêm mạng chơi = vàng
             default            -> gc.setFill(Color.WHITE);  // Các loại khác (nếu có)
         }
         gc.fillOval(getX(), getY(), getWidth(), getHeight());

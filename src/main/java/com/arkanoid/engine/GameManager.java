@@ -215,16 +215,19 @@ public final class GameManager {
     private void maybeSpawnPowerUp(Brick source) {
         double centerX = source.getCenterX();
         double y = source.getCenterY();
-        // Sinh ngẫu nhiên 2 loại PowerUp
+        // Sinh ngẫu nhiên 3 loại PowerUp
         PowerUp p;
-        if (Math.random() < 0.7) {
+        if (Math.random() < 0.6) {
             return;
-        } else if (Math.random() < 0.85) {
+        } else if (Math.random() < 0.8) {
             // Tạo PowerUp mở rộng Paddle
             p = new ExpandPaddlePowerUp(centerX - 12, y, 24, 12);
-        } else {
+        } else if (Math.random() < 0.9) {
             // Tạo PowerUp tăng tốc bóng
             p = new FastBallPowerUp(centerX - 12, y, 24, 12);
+        }  else {
+            // Tạo PowerUp thêm mạng chơi
+            p = new ExtraLifePowerUp(centerX - 12, y, 24, 12);
         }
         powerUps.add(p);
     }
