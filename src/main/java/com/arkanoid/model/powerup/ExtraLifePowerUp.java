@@ -6,6 +6,7 @@ import com.arkanoid.model.paddle.Paddle;
 /**
  * PowerUp giúp người chơi nhận thêm 1 mạng khi ăn.
  * Không có hiệu ứng tạm thời, chỉ tác động 1 lần khi chạm Paddle.
+ * Tối đa 5 mạng.
  */
 public final class ExtraLifePowerUp extends PowerUp {
 
@@ -18,22 +19,12 @@ public final class ExtraLifePowerUp extends PowerUp {
      * @param h chiều cao hiển thị của vật phẩm
      */
     public ExtraLifePowerUp(double x, double y, double w, double h) {
-        // Truyền type = EXTRA_LIFE và thời gian hiệu lực = 0 (vì không cần duy trì)
-        super(x, y, w, h, PowerUpType.EXTRA_LIFE, 0);
+        super(x, y, w, h, PowerUpType.EXTRA_LIFE);
     }
 
     /**
-     * Áp dụng hiệu ứng: cộng thêm 1 mạng cho người chơi khi Paddle chạm.
-     * (Hiệu ứng xảy ra tức thời, không có thời gian duy trì)
+     * Áp dụng hiệu ứng: cộng thêm 1 mạng cho người chơi khi Paddle chạm vật phẩm.
      */
     @Override
-    public void applyEffect(Paddle paddle, Ball ball) {
-        markApplied(); // Đánh dấu hiệu ứng đã áp dụng
-    }
-
-    /**
-     * Không cần gỡ hiệu ứng vì đây là PowerUp tức thời.
-     */
-    @Override
-    public void removeEffect(Paddle paddle, Ball ball) {}
+    public void applyEffect(Paddle paddle, Ball ball) {}
 }

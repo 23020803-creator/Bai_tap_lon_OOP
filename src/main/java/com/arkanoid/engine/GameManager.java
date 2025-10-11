@@ -122,20 +122,24 @@ public final class GameManager {
                     bricks.add(new NormalBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT));
             }
         }
+        paddle.resetSize();
+        ball.resetSpeed();
+        powerUps.clear();
     }
 
     /**
      * Vòng cập nhật chính
      */
     public void updateGame() {
-        // Di chuyển Paddle
+        // Di chuyển Paddle & cập nhật trạng thái
         int vx = 0;
         if (leftPressed)  vx -= paddle.getSpeed();
         if (rightPressed) vx += paddle.getSpeed();
         paddle.setX(Math.max(0, Math.min(Config.VIEW_WIDTH - paddle.getWidth(), paddle.getX() + vx)));
+        paddle.update();
 
-        // Di chuyển bóng
-        ball.move();
+        // Di chuyển bóng & cập nhật trạng thái
+        ball.update();
 
         // Xử lý va chạm tường
         if (ball.getX() <= 0 || ball.getRight() >= Config.VIEW_WIDTH) {
@@ -154,12 +158,13 @@ public final class GameManager {
         Iterator<Brick> it = bricks.iterator();
         while (it.hasNext()) {
             Brick b = it.next();
-            if (!b.isDestroyed() && ball.getBounds().intersects(b.getBounds())) {
+            if (!b.isDestroyed() && ball.checkCollision(b)) {
                 Rectangle2D inter = intersection(ball.getBounds(), b.getBounds());
-                if (inter.getWidth() > inter.getHeight())
+                if (inter.getWidth() > inter.getHeight()) {
                     ball.bounceVertical();
-                else
+                } else {
                     ball.bounceHorizontal();
+                }
                 b.takeHit();
                 if (b.isDestroyed()) {
                     score += 100;
@@ -179,8 +184,14 @@ public final class GameManager {
                 pit.remove(); // rơi khỏi màn hình
                 continue;
             }
+
             if (p.getBounds().intersects(paddle.getBounds())) {
                 p.applyEffect(paddle, ball);
+                if (p instanceof ExtraLifePowerUp) {
+                    if(lives < Config.MAX_LIVES) {
+                        lives++;
+                    }
+                }
                 pit.remove();
             }
         }
@@ -210,7 +221,7 @@ public final class GameManager {
     }
 
     /**
-     * Sinh PowerUp mở rộng Paddle tại vị trí gạch bị phá.
+     * Sinh PowerUp tại vị trí gạch bị phá.
      */
     private void maybeSpawnPowerUp(Brick source) {
         double centerX = source.getCenterX();

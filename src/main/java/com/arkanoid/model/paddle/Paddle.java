@@ -2,7 +2,6 @@ package com.arkanoid.model.paddle;
 
 import com.arkanoid.engine.Config;
 import com.arkanoid.model.object.MovableObject;
-import com.arkanoid.model.powerup.PowerUp;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -12,9 +11,10 @@ import javafx.scene.paint.Color;
  * - Có thể nhận hiệu ứng từ PowerUp (ví dụ: kéo dài, tăng tốc...).
  */
 public final class Paddle extends MovableObject {
-    private final double baseSpeed;      // Tốc độ mặc định ban đầu
-    private double speed;                // Tốc độ hiện tại (có thể thay đổi do PowerUp)
-    private PowerUp currentPowerUp;      // PowerUp đang được áp dụng (nếu có)
+    private double speed;               // Tốc độ hiện tại
+    private final double baseWidth;
+    private int expandLevel;
+    private int expandTimer;
 
     /**
      * Khởi tạo Paddle.
@@ -27,43 +27,63 @@ public final class Paddle extends MovableObject {
      */
     public Paddle(double x, double y, double width, double height, double speed) {
         super(x, y, width, height);
-        this.baseSpeed = speed;
+        this.baseWidth = width;
+        this.expandLevel = 0;
+        this.expandTimer = 0;
         this.speed = speed;
-    }
-
-    /** Di chuyển sang trái (không vượt ra ngoài biên trái màn hình). */
-    public void moveLeft() {
-        setX(Math.max(0, getX() - speed));
-    }
-
-    /** Di chuyển sang phải (không vượt ra ngoài biên phải màn hình). */
-    public void moveRight() {
-        setX(Math.min(Config.VIEW_WIDTH - getWidth(), getX() + speed));
     }
 
     /**
      * Áp dụng hiệu ứng PowerUp mới cho Paddle.
      */
-    public void applyPowerUp(PowerUp powerUp) {
-        if (currentPowerUp != null) {
-            currentPowerUp.removeEffect(this, null);
+    public void activateExpandEffect() {
+        if (expandLevel < 2) {
+            expandLevel++;
         }
-        currentPowerUp = powerUp;
+        this.expandTimer += Config.DURATION_PER_POWERUP;
+        updateWidthByLevel();
     }
 
-    /** Đặt lại tốc độ và trạng thái ban đầu (dùng khi PowerUp hết hiệu lực). */
-    public void resetStats() {
-        speed = baseSpeed;
+    /**
+     * Cập nhật chiều rộng theo cấp độ paddle.
+     */
+    public void updateWidthByLevel() {
+        if (expandLevel == 2) {
+            setWidth(baseWidth * 2.25);
+        }  else if (expandLevel == 1) {
+            setWidth(baseWidth * 1.5);
+        } else  {
+            setWidth(baseWidth);
+        }
     }
 
-    /** Trả về toạ độ X của tâm Paddle (hữu ích để đặt bóng). */
+    /**
+     * Reset kích thước paddle về trạng thái ban đầu.
+     */
+    public void resetSize() {
+        expandLevel = 0;
+        expandTimer = 0;
+        updateWidthByLevel();
+    }
+
+    /**
+     * Trả về toạ độ X của tâm Paddle.
+     */
     public double getCenterX() {
         return getX() + getWidth() / 2.0;
     }
 
+    /**
+     * Đếm ngược và kiêmr tra hiệu ứng.
+     */
     @Override
     public void update() {
-        // Paddle không tự di chuyển, chỉ cập nhật thông qua input từ người chơi.
+        if (expandTimer > 0) {
+            expandTimer--;
+            if (expandTimer == 0) {
+                resetSize();
+            }
+        }
     }
 
     @Override
@@ -78,8 +98,8 @@ public final class Paddle extends MovableObject {
         return speed;
     }
 
-    public void setSpeed(double s) {
-        this.speed = Math.max(1, s);
+    public void setSpeed(double speed) {
+        this.speed = Math.max(1.0, speed);
     }
 }
 

@@ -2,12 +2,13 @@ package com.arkanoid.engine;
 
 /**
  * Lớp chứa các hằng số cấu hình của game.
- *
+ * <p>
  * Mọi thông số về kích thước, tốc độ, số mạng... đều được định nghĩa ở đây
  * để dễ dàng thay đổi và quản lý.
  */
 public final class Config {
-    private Config() {}
+    private Config() {
+    }
 
     // Kích thước cửa sổ hiển thị
     public static final int VIEW_WIDTH = 800;
@@ -29,6 +30,12 @@ public final class Config {
     public static final int BRICK_HEIGHT = 24;
     public static final int BRICK_GAP = 4;
 
+    // Thời gian hiệu lực của powerup
+    public static final int DURATION_PER_POWERUP = 60 * 4;
+
     // Số mạng ban đầu của người chơi
     public static final int START_LIVES = 3;
+
+    // Số mạng tối đa
+    public static final int MAX_LIVES = 5;
 }

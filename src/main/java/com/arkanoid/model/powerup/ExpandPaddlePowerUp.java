@@ -6,12 +6,11 @@ import com.arkanoid.model.paddle.Paddle;
 /**
  * PowerUp mở rộng Paddle (Expand Paddle).
  * - Khi người chơi ăn được, thanh Paddle sẽ dài ra (x1.5 lần).
- * - Hiệu ứng chỉ tồn tại trong một khoảng thời gian giới hạn (8 giây ở 60 FPS).
+ * - Hiệu ứng chỉ tồn tại trong một khoảng thời gian giới hạn (4 giây ở 60 FPS).
  * - Khi hết hạn, Paddle trở lại chiều rộng ban đầu.
+ * - Có thể cộng dồn hiệu ứng (max = paddle x2.25 lần) và thời gian (vô hạn).
  */
 public final class ExpandPaddlePowerUp extends PowerUp {
-    private static final int DURATION = 60 * 8; // Thời gian hiệu lực: 8 giây
-    private double originalWidth; // Lưu lại chiều rộng gốc của Paddle
 
     /**
      * Khởi tạo PowerUp mở rộng Paddle.
@@ -22,28 +21,16 @@ public final class ExpandPaddlePowerUp extends PowerUp {
      * @param h chiều cao của vật phẩm hiển thị
      */
     public ExpandPaddlePowerUp(double x, double y, double w, double h) {
-        super( x, y, w, h, PowerUpType.EXPAND_PADDLE, DURATION);
+        super( x, y, w, h, PowerUpType.EXPAND_PADDLE);
     }
 
     /**
-     * Áp dụng hiệu ứng: tăng chiều rộng Paddle lên 1.5 lần.
+     * Áp dụng hiệu ứng: tăng chiều rộng Paddle lên 1.5 lần, tối đa 2.25 lần.
      */
     @Override
     public void applyEffect(Paddle paddle, Ball ball) {
-        if (originalWidth == 0) { // chỉ lưu lần đầu
-            originalWidth = paddle.getWidth();
-        }
-        paddle.setWidth((int) (originalWidth * 1.5));
-        paddle.applyPowerUp(this);
-    }
-
-    /**
-     * Gỡ hiệu ứng khi hết thời gian: đặt lại Paddle về chiều rộng gốc.
-     */
-    @Override
-    public void removeEffect(Paddle paddle, Ball ball) {
-        if (paddle != null && originalWidth > 0) {
-            paddle.setWidth(originalWidth);
+        if (ball != null) {
+            paddle.activateExpandEffect();
         }
     }
 }
