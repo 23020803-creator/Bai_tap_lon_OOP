@@ -54,6 +54,8 @@ public final class GameManager {
         score = 0;
         lives = Config.START_LIVES;
         initPaddleAndBall();
+        SoundManager.stopAllBGM(); // dừng toàn bộ nhạc đang phát trước đó
+        SoundManager.playBGM("OpeningMusic.mp3", true); // Phát nhạc Menu
     }
 
     /**
@@ -85,6 +87,8 @@ public final class GameManager {
         }
         if (state == GameState.PAUSED) {
             state = GameState.RUNNING;
+            // Phát nhạc nền
+            SoundManager.playBGM("BackgroundMusic1.mp3", true);
         }
     }
 
@@ -94,8 +98,11 @@ public final class GameManager {
     public void togglePause() {
         if (state == GameState.RUNNING) {
             state = GameState.PAUSED;
+            SoundManager.stopAllBGM(); // Khi nhấn dừng thì ngừng phát âm thanh
         } else if (state == GameState.PAUSED) {
             state = GameState.RUNNING;
+            // Tiếp tục phát nhạc nền
+            SoundManager.playBGM("BackgroundMusic1.mp3", true);
         }
     }
 
@@ -125,6 +132,10 @@ public final class GameManager {
         paddle.resetSize();
         ball.resetSpeed();
         powerUps.clear();
+
+        // Phát nhạc nền khi chơi
+        SoundManager.stopAllBGM();
+        SoundManager.playBGM("BackgroundMusic1.mp3", true);
     }
 
     /**
@@ -133,8 +144,8 @@ public final class GameManager {
     public void updateGame() {
         // Di chuyển Paddle & cập nhật trạng thái
         int vx = 0;
-        if (leftPressed)  vx -= paddle.getSpeed();
-        if (rightPressed) vx += paddle.getSpeed();
+        if (leftPressed)  vx -= (int) paddle.getSpeed();
+        if (rightPressed) vx += (int) paddle.getSpeed();
         paddle.setX(Math.max(0, Math.min(Config.VIEW_WIDTH - paddle.getWidth(), paddle.getX() + vx)));
         paddle.update();
 
@@ -144,14 +155,17 @@ public final class GameManager {
         // Xử lý va chạm tường
         if (ball.getX() <= 0 || ball.getRight() >= Config.VIEW_WIDTH) {
             ball.bounceHorizontal();
+            SoundManager.playSFX("HitBall_Anything.wav");
         }
         if (ball.getY() <= 0) {
             ball.bounceVertical();
+            SoundManager.playSFX("HitBall_Anything.wav");
         }
 
         // Va chạm với Paddle
         if (ball.getBounds().intersects(paddle.getBounds())) {
             ball.bounceOff(paddle);
+            SoundManager.playSFX("HitBall_Anything.wav");
         }
 
         // Va chạm với gạch
@@ -164,6 +178,7 @@ public final class GameManager {
                     ball.bounceVertical();
                 } else {
                     ball.bounceHorizontal();
+                    SoundManager.playSFX("HitBall_Anything.wav");
                 }
                 b.takeHit();
                 if (b.isDestroyed()) {
@@ -187,6 +202,7 @@ public final class GameManager {
 
             if (p.getBounds().intersects(paddle.getBounds())) {
                 p.applyEffect(paddle, ball);
+                SoundManager.playSFX("HitPaddle_PowerUp.wav"); // Âm thanh hiệu ứng ăn PowerUp
                 if (p instanceof ExtraLifePowerUp) {
                     if(lives < Config.MAX_LIVES) {
                         lives++;
@@ -199,12 +215,24 @@ public final class GameManager {
         // Kiểm tra bóng rơi khỏi màn hình
         if (ball.getY() > Config.VIEW_HEIGHT) {
             lives--;
-            if (lives <= 0) state = GameState.GAME_OVER;
-            else ball.resetOnPaddle(paddle);
+            if (lives <= 0) {
+                state = GameState.GAME_OVER;
+                // Khi hết mạng chơi phát nhạc thua
+                SoundManager.stopAllBGM();
+                SoundManager.playBGM("GameOverMusic.mp3", false);
+            } else {
+                ball.resetOnPaddle(paddle);
+            }
         }
 
         // Kiểm tra thắng
-        if (bricks.isEmpty() && state == GameState.RUNNING) state = GameState.WIN;
+        if (bricks.isEmpty() && state == GameState.RUNNING) {
+            state = GameState.WIN;
+            // Phát nhạc thắng
+            SoundManager.stopAllBGM();
+            SoundManager.playBGM("GameClearMusic.mp3", false);
+        }
+
     }
 
     /**
@@ -228,7 +256,7 @@ public final class GameManager {
         double y = source.getCenterY();
         // Sinh ngẫu nhiên 3 loại PowerUp
         PowerUp p;
-        if (Math.random() < 0.6) {
+        if (Math.random() < 0.7) {
             return;
         } else if (Math.random() < 0.8) {
             // Tạo PowerUp mở rộng Paddle
