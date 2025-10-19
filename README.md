@@ -70,5 +70,6 @@ Trong một màn chơi, người chơi sẽ điều khiển Paddle để giữ c
 # Yêu cầu chung
 Trong quá trình thực hiện, sinh viên được phép bổ sung thêm các lớp và hàm cần thiết, cũng như tùy chỉnh cấu trúc chương trình. Có thể sử dụng thêm các thư viện Java bên ngoài nếu cần. Khuyến khích sinh viên sử dụng các công nghệ, thư viện nâng cao để trau dồi kỹ năng.
 # Sơ đồ thiết kế các lớp
-<img width="3202" height="3384" alt="main" src="https://github.com/user-attachments/assets/5ad06e83-eef5-4d69-92f9-c34c2578858a" />
+<img width="3130" height="4826" alt="Bai_tap_lon_OOP" src="https://github.com/user-attachments/assets/e2f71315-637d-45cf-960a-6ed96c1a4f8d" />
+
 
