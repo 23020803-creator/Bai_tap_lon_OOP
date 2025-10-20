@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class Renderer {
     private final GraphicsContext gc;
+    private ExplosionEffect[] explosions;
 
     public Renderer(GraphicsContext gc) {
         this.gc = gc;
@@ -81,15 +82,15 @@ public class Renderer {
      * Lưu ý: thêm parameter explosions để vẽ hiệu ứng nổ.
      */
     public void renderAll(GameState state, int score, int lives,
-                          List<Brick> bricks, Paddle paddle, Ball ball, List<PowerUp> powerUps,
-                          List<ExplosionEffect> explosions) {
+                          List<Brick> bricks, Paddle paddle, Ball ball,
+                          List<PowerUp> powerUps, List<ExplosionEffect> explosions) {
 
         drawBackground();
         drawHud(score, lives);
 
         // Vẽ hiệu ứng nổ trước (hoặc sau) tùy ý; ở đây vẽ trước để có hiệu ứng nền
-        if (explosions != null) {
-            for (ExplosionEffect e : explosions) {
+        if (this.explosions != null) {
+            for (ExplosionEffect e : this.explosions) {
                 e.render(gc);
             }
         }

@@ -2,6 +2,7 @@ package com.arkanoid.engine;
 
 import com.arkanoid.model.ball.Ball;
 import com.arkanoid.model.brick.*;
+import com.arkanoid.model.effect.ExplosionEffect;
 import com.arkanoid.model.paddle.Paddle;
 import com.arkanoid.model.powerup.*;
 import javafx.animation.AnimationTimer;
@@ -16,6 +17,7 @@ import java.util.*;
 public final class GameManager {
     private final List<Brick> bricks = new ArrayList<>();   // Danh sách gạch
     private final List<PowerUp> powerUps = new ArrayList<>(); // Danh sách PowerUp đang rơi
+    private final List<ExplosionEffect> explosions = new ArrayList<>(); // Hiệu ứng nổ tạm thời
     private final AnimationTimer loop;                      // Vòng lặp chính của game
     private Paddle paddle;
     private Ball ball;
@@ -34,7 +36,7 @@ public final class GameManager {
                 if (state == GameState.RUNNING) {
                     updateGame();  // Cập nhật logic
                 }
-                renderer.renderAll(state, score, lives, bricks, paddle, ball, powerUps); // cập nhật đồ họa
+                renderer.renderAll(state, score, lives, bricks, paddle, ball, powerUps, explosions); // cập nhật đồ họa
             }
         };
     }
@@ -108,6 +110,7 @@ public final class GameManager {
 
     /**
      * Khởi tạo lại toàn bộ màn chơi.
+     * Sinh map động: hỗn hợp các loại gạch (NORMAL, STRONG, UNBREAKABLE, H_EXPLODE, V_EXPLODE)
      */
     public void startGame() {
         score = 0;
@@ -115,23 +118,45 @@ public final class GameManager {
         state = GameState.RUNNING;
         initPaddleAndBall();
 
-        // Sinh ma trận gạch
+        // Sinh ma trận gạch với tỉ lệ ngẫu nhiên
         bricks.clear();
+        powerUps.clear();
+        explosions.clear();
+
         int offsetX = (Config.VIEW_WIDTH - (Config.BRICK_COLS * (Config.BRICK_WIDTH + Config.BRICK_GAP) - Config.BRICK_GAP)) / 2;
         int offsetY = 60;
+        Random rnd = new Random();
+
         for (int r = 0; r < Config.BRICK_ROWS; r++) {
             for (int c = 0; c < Config.BRICK_COLS; c++) {
                 int x = offsetX + c * (Config.BRICK_WIDTH + Config.BRICK_GAP);
                 int y = offsetY + r * (Config.BRICK_HEIGHT + Config.BRICK_GAP);
-                if ((r + c) % 3 == 0)
-                    bricks.add(new StrongBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT));
-                else
-                    bricks.add(new NormalBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT));
+
+                double roll = rnd.nextDouble();
+                Brick b;
+                // Tỉ lệ cân nhắc (có thể chỉnh):
+                // 0.00 - 0.55 : Normal (55%)
+                // 0.55 - 0.75 : Strong (20%)
+                // 0.75 - 0.85 : Unbreakable (10%)
+                // 0.85 - 0.93 : Horizontal Explode (8%)
+                // 0.93 - 1.00 : Vertical Explode (7%)
+                if (roll < 0.55) {
+                    b = new NormalBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                } else if (roll < 0.75) {
+                    b = new StrongBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                } else if (roll < 0.85) {
+                    b = new UnbreakableBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                } else if (roll < 0.93) {
+                    b = new HorizontalExplodeBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                } else {
+                    b = new VerticalExplodeBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                }
+                bricks.add(b);
             }
         }
+
         paddle.resetSize();
         ball.resetSpeed();
-        powerUps.clear();
 
         // Phát nhạc nền khi chơi
         SoundManager.stopAllBGM();
@@ -169,8 +194,9 @@ public final class GameManager {
         }
 
         // Va chạm với gạch
+        boolean processedCollision = false;
         Iterator<Brick> it = bricks.iterator();
-        while (it.hasNext()) {
+        while (it.hasNext() && !processedCollision) {
             Brick b = it.next();
             if (!b.isDestroyed() && ball.checkCollision(b)) {
                 Rectangle2D inter = intersection(ball.getBounds(), b.getBounds());
@@ -180,12 +206,24 @@ public final class GameManager {
                     ball.bounceHorizontal();
                     SoundManager.playSFX("HitBall_Anything.wav");
                 }
-                b.takeHit();
-                if (b.isDestroyed()) {
-                    score += 100;
-                    maybeSpawnPowerUp(b);
-                    it.remove();
+
+                // Nếu gạch là Unbreakable thì chỉ bounce, không phá.
+                if (b instanceof UnbreakableBrick) {
+                    // Không gọi takeHit; chỉ âm thanh
+                    SoundManager.playSFX("HitBall_Anything.wav");
+                } else {
+                    // Bình thường giảm HP
+                    b.takeHit();
+
+                    if (b.isDestroyed()) {
+                        // Xử lý phá gạch + nổ (nếu là explode brick) + chain reaction
+                        int destroyed = handleBrickDestruction(b);
+                        // tăng điểm: mỗi viên 100 điểm
+                        score += destroyed * 100;
+                    }
                 }
+
+                processedCollision = true;
                 break;
             }
         }
@@ -212,6 +250,14 @@ public final class GameManager {
             }
         }
 
+        // Cập nhật và dọn các hiệu ứng nổ
+        Iterator<ExplosionEffect> eIt = explosions.iterator();
+        while (eIt.hasNext()) {
+            ExplosionEffect e = eIt.next();
+            e.update();
+            if (!e.isAlive()) eIt.remove();
+        }
+
         // Kiểm tra bóng rơi khỏi màn hình
         if (ball.getY() > Config.VIEW_HEIGHT) {
             lives--;
@@ -226,7 +272,23 @@ public final class GameManager {
         }
 
         // Kiểm tra thắng
-        if (bricks.isEmpty() && state == GameState.RUNNING) {
+        boolean anyBreakableLeft = false;
+        for (Brick b : bricks) {
+            if (!(b instanceof UnbreakableBrick)) {
+                anyBreakableLeft = true;
+                break;
+            }
+        }
+        // Nếu không còn gạch (tất cả đã bị loại hoặc chỉ còn unbreakable)
+        boolean allDestroyedOrUnbreakable = true;
+        for (Brick b : bricks) {
+            if (!b.isDestroyed() && !(b instanceof UnbreakableBrick)) {
+                allDestroyedOrUnbreakable = false;
+                break;
+            }
+        }
+
+        if ((bricks.isEmpty() || allDestroyedOrUnbreakable) && state == GameState.RUNNING) {
             state = GameState.WIN;
             // Phát nhạc thắng
             SoundManager.stopAllBGM();
@@ -249,19 +311,95 @@ public final class GameManager {
     }
 
     /**
+     * Xử lý phá hủy 1 viên gạch nguồn (source).
+     * - Thu thập tất cả các gạch bị phá do hiệu ứng nổ (chain reaction).
+     * - Thêm hiệu ứng nổ (ExplosionEffect) tại vị trí từng gạch.
+     * - Sinh PowerUp cho mỗi viên gạch bị phá (giữ nguyên cơ chế cũ).
+     *
+     * Trả về số lượng gạch thực sự bị phá.
+     */
+    private int handleBrickDestruction(Brick source) {
+        Set<Brick> toDestroy = new HashSet<>();
+        collectDestruction(source, toDestroy);
+
+        // Thực hiện loại bỏ và spawn powerups/hiệu ứng
+        int count = 0;
+        Iterator<Brick> it = bricks.iterator();
+        while (it.hasNext()) {
+            Brick b = it.next();
+            if (toDestroy.contains(b)) {
+                // spawn explosion effect at brick center
+                double cx = b.getCenterX();
+                double cy = b.getCenterY();
+                explosions.add(new ExplosionEffect(cx, cy, 20, Math.max(b.getWidth(), b.getHeight()) * 1.8));
+
+                // spawn powerup theo cơ chế cũ (giữ tỉ lệ)
+                maybeSpawnPowerUp(b);
+
+                it.remove();
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Thu thập đệ quy các gạch bị ảnh hưởng bởi hiệu ứng nổ bắt đầu từ 'b'.
+     * - Nếu gặp HorizontalExplodeBrick -> thu thập toàn hàng (centerY giống nhau)
+     * - Nếu gặp VerticalExplodeBrick -> thu thập toàn cột (centerX giống nhau)
+     * - Nếu gặp UnbreakableBrick -> bỏ qua (không thể phá)
+     * - Chain reaction: nếu trong hàng/cột gặp thêm gạch nổ khác, sẽ tiếp tục thu thập.
+     */
+    private void collectDestruction(Brick b, Set<Brick> collector) {
+        if (b == null) return;
+        if (collector.contains(b)) return;
+        if (b instanceof UnbreakableBrick) return; // không phá
+        // add this brick
+        collector.add(b);
+
+        // Chain: nếu b là Explode Horizontal/Vertical -> thu thập thêm
+        if (b instanceof HorizontalExplodeBrick) {
+            double targetY = b.getCenterY();
+            // thu thập mọi viên cùng hàng (so sánh centerY)
+            for (Brick other : new ArrayList<>(bricks)) {
+                if (other == b) continue;
+                if (other instanceof UnbreakableBrick) continue;
+                if (Math.abs(other.getCenterY() - targetY) <= (Config.BRICK_HEIGHT / 2.0 + 1.0)) {
+                    // mark and continue chain
+                    collectDestruction(other, collector);
+                }
+            }
+        } else if (b instanceof VerticalExplodeBrick) {
+            double targetX = b.getCenterX();
+            // thu thập mọi viên cùng cột (so sánh centerX)
+            for (Brick other : new ArrayList<>(bricks)) {
+                if (other == b) continue;
+                if (other instanceof UnbreakableBrick) continue;
+                if (Math.abs(other.getCenterX() - targetX) <= (Config.BRICK_WIDTH / 2.0 + 1.0)) {
+                    collectDestruction(other, collector);
+                }
+            }
+        } else {
+            // normal brick / strong brick: chỉ bản thân nó (đã add), không lan
+        }
+    }
+
+    /**
      * Sinh PowerUp tại vị trí gạch bị phá.
+     * (Giữ logic cũ, chỉ spawn theo tỉ lệ).
      */
     private void maybeSpawnPowerUp(Brick source) {
         double centerX = source.getCenterX();
         double y = source.getCenterY();
-        // Sinh ngẫu nhiên 3 loại PowerUp
+        // Sinh ngẫu nhiên 3 loại PowerUp - tỉ lệ giống cũ
         PowerUp p;
-        if (Math.random() < 0.7) {
+        double r = Math.random();
+        if (r < 0.7) {
             return;
-        } else if (Math.random() < 0.8) {
+        } else if (r < 0.8) {
             // Tạo PowerUp mở rộng Paddle
             p = new ExpandPaddlePowerUp(centerX - 12, y, 24, 12);
-        } else if (Math.random() < 0.9) {
+        } else if (r < 0.9) {
             // Tạo PowerUp tăng tốc bóng
             p = new FastBallPowerUp(centerX - 12, y, 24, 12);
         }  else {
@@ -270,7 +408,6 @@ public final class GameManager {
         }
         powerUps.add(p);
     }
-
 
     // Setter cho cờ phím
     public void setLeftPressed(boolean v) {
@@ -281,4 +418,3 @@ public final class GameManager {
         rightPressed = v;
     }
 }
-
