@@ -26,7 +26,7 @@ public abstract class PowerUp extends MovableObject {
      * @param type loại PowerUp
      */
     protected PowerUp(double x, double y, double w, double h, PowerUpType type) {
-        super(x, y, w * 1.5, h * 2.5);
+        super(x, y, w * 2, w * 2);
         this.type = type;
         this.setDy(2); // Tốc độ rơi mặc định = 2 pixel/frame
         loadIcon();    // load ảnh
