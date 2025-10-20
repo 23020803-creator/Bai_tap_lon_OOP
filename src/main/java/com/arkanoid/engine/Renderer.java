@@ -2,12 +2,14 @@ package com.arkanoid.engine;
 
 import com.arkanoid.model.ball.Ball;
 import com.arkanoid.model.brick.Brick;
+import com.arkanoid.model.effect.ExplosionEffect;
 import com.arkanoid.model.paddle.Paddle;
 import com.arkanoid.model.powerup.PowerUp;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import java.util.List;
+
 /**
  * Lớp phụ trách vẽ khung hình.
  */
@@ -63,7 +65,7 @@ public class Renderer {
      * Vẽ paddle.
      */
     private void drawPaddle(Paddle p) {
-        p.render(gc);
+        if (p != null) p.render(gc);
     }
 
     /**
@@ -71,25 +73,39 @@ public class Renderer {
      * @param ball bóng.
      */
     private void drawBall(Ball ball) {
-        ball.render(gc);
+        if (ball != null) ball.render(gc);
     }
 
     /**
      * Vẽ toàn bộ khung hình dựa trên state hiện tại.
+     * Lưu ý: thêm parameter explosions để vẽ hiệu ứng nổ.
      */
     public void renderAll(GameState state, int score, int lives,
-            List<Brick> bricks, Paddle paddle, Ball ball, List<PowerUp> powerUps) {
+                          List<Brick> bricks, Paddle paddle, Ball ball, List<PowerUp> powerUps,
+                          List<ExplosionEffect> explosions) {
+
         drawBackground();
         drawHud(score, lives);
 
+        // Vẽ hiệu ứng nổ trước (hoặc sau) tùy ý; ở đây vẽ trước để có hiệu ứng nền
+        if (explosions != null) {
+            for (ExplosionEffect e : explosions) {
+                e.render(gc);
+            }
+        }
+
         // Bricks
-        for (Brick b : bricks) {
-            if (!b.isDestroyed()) drawBrick(b);
+        if (bricks != null) {
+            for (Brick b : bricks) {
+                if (!b.isDestroyed()) drawBrick(b);
+            }
         }
 
         // PowerUps
-        for (PowerUp p : powerUps) {
-            p.render(gc);
+        if (powerUps != null) {
+            for (PowerUp p : powerUps) {
+                p.render(gc);
+            }
         }
 
         // Paddle & Ball
