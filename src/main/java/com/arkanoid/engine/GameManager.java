@@ -4,10 +4,13 @@ import com.arkanoid.model.ball.Ball;
 import com.arkanoid.model.brick.*;
 import com.arkanoid.model.paddle.Paddle;
 import com.arkanoid.model.powerup.*;
-import javafx.animation.AnimationTimer;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import java.util.*;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
+
 
 /**
  * Bộ điều khiển chính của game.
@@ -16,7 +19,7 @@ import java.util.*;
 public final class GameManager {
     private final List<Brick> bricks = new ArrayList<>();   // Danh sách gạch
     private final List<PowerUp> powerUps = new ArrayList<>(); // Danh sách PowerUp đang rơi
-    private final AnimationTimer loop;                      // Vòng lặp chính của game
+    private final Timeline loop;                     // Vòng lặp chính của game
     private Paddle paddle;
     private Ball ball;
     private GameState state = GameState.MENU;               // Trạng thái hiện tại
@@ -28,22 +31,30 @@ public final class GameManager {
 
     public GameManager(GraphicsContext gc) {
         this.renderer = new Renderer(gc);
+        double frameDuration = 1000.0 / 60.0;
         // Vòng lặp khung hình chính
-        this.loop = new AnimationTimer() {
-            @Override public void handle(long now) {
-                if (state == GameState.RUNNING) {
-                    updateGame();  // Cập nhật logic
-                }
-                renderer.renderAll(state, score, lives, bricks, paddle, ball, powerUps); // cập nhật đồ họa
+        KeyFrame frame = new KeyFrame(Duration.millis(frameDuration), e -> {
+            if (state == GameState.RUNNING) {
+                updateGame();
             }
-        };
+            renderer.renderAll(state, score, lives, bricks, paddle, ball, powerUps);
+        });
+        this.loop = new Timeline(frame);
+        this.loop.setCycleCount(Timeline.INDEFINITE);
     }
 
     /**
      * Bắt đầu vòng lặp game.
      */
     public void startLoop() {
-        loop.start();
+        loop.play();
+    }
+
+    /**
+     * Kết thúc vòng lặp.
+     */
+    public void stopLoop() {
+        loop.stop();
     }
 
     /**
