@@ -69,6 +69,10 @@ public abstract class PowerUp extends MovableObject {
         }
     }
 
+    public Image getIcon() {
+        return icon;
+    }
+
     /**
      * Vẽ PowerUp lên canvas JavaFX.
      */
@@ -76,9 +80,18 @@ public abstract class PowerUp extends MovableObject {
     public void render(GraphicsContext gc) {
         if (icon != null) {
             gc.save();
+            // Thêm hiệu ứng phóng to thu nhỏ cho từng loại powerup.
+            double t = System.currentTimeMillis() / 300.0;
+            double scale = 1.0 + 0.15 * Math.sin(t); // tạo nhịp to nhỏ theo thời gian.
+            double alpha = 0.9 + 0.1 * Math.sin(t * 1.5);
+            double newW = getWidth() * scale;
+            double newH = getHeight() * scale;
+            double offsetX = getX() - (newW - getWidth()) / 2;
+            double offsetY = getY() - (newH - getHeight()) / 2;
+
+            gc.setGlobalAlpha(alpha);
             gc.setGlobalBlendMode(BlendMode.SRC_OVER);
-            gc.setGlobalAlpha(1.0);
-            gc.drawImage(icon, getX(), getY(), getWidth(), getHeight());
+            gc.drawImage(getIcon(), offsetX, offsetY, newW, newH);
             gc.restore();
         }
     }
