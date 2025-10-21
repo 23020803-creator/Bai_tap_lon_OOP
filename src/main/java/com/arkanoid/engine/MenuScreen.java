@@ -1,6 +1,5 @@
-package com.arkanoid.model;
+package com.arkanoid.engine;
 
-import com.arkanoid.engine.GameManager;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -8,7 +7,6 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.media.AudioClip;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 public class MenuScreen {
@@ -23,6 +21,9 @@ public class MenuScreen {
     }
 
     public void show() {
+        // Phát nhạc menu.
+        com.arkanoid.engine.SoundManager.stopAllBGM();
+        com.arkanoid.engine.SoundManager.playBGM("OpeningMusic.mp3", true);
         // --- Nền menu ---
         Image bg = new Image(getClass().getResource("/imagesmenuscreen/Background.png").toExternalForm());
         BackgroundImage bgImage = new BackgroundImage(bg, BackgroundRepeat.NO_REPEAT,

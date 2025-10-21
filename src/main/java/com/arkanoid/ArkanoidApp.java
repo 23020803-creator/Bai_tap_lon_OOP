@@ -2,7 +2,7 @@ package com.arkanoid;
 
 import com.arkanoid.engine.Config;
 import com.arkanoid.engine.GameManager;
-import com.arkanoid.model.MenuScreen;
+import com.arkanoid.engine.MenuScreen;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;

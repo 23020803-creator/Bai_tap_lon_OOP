@@ -53,18 +53,6 @@ public final class GameManager {
     }
 
     /**
-     * Hiển thị màn hình menu chờ.
-     */
-    public void showMenu() {
-        state = GameState.MENU;
-        score = 0;
-        lives = Config.START_LIVES;
-        initPaddleAndBall();
-        SoundManager.stopAllBGM(); // dừng toàn bộ nhạc đang phát trước đó
-        SoundManager.playBGM("OpeningMusic.mp3", true); // Phát nhạc Menu
-    }
-
-    /**
      * Tạo mới paddle và bóng.
      */
     private void initPaddleAndBall() {
@@ -383,8 +371,6 @@ public final class GameManager {
                     collectDestruction(other, collector);
                 }
             }
-        } else {
-            // normal brick / strong brick: chỉ bản thân nó (đã add), không lan
         }
     }
 
