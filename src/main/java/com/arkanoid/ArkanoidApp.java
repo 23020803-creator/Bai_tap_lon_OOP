@@ -2,6 +2,7 @@ package com.arkanoid;
 
 import com.arkanoid.engine.Config;
 import com.arkanoid.engine.GameManager;
+import com.arkanoid.model.MenuScreen;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -11,40 +12,33 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 /**
- * Điểm khởi chạy của ứng dụng Arkanoid.
- * Class này chịu trách nhiệm:
- * - Tạo cửa sổ JavaFX.
- * - Tạo Canvas và lấy GraphicsContext.
- * - Liên kết GameManager với Renderer.
- * - Gắn sự kiện bàn phím .
- * - Bắt đầu game loop.
+ Điểm khởi chạy của ứng dụng Arkanoid.
+ Class này chịu trách nhiệm:
+ Tạo cửa sổ JavaFX.
+ Quản lý chuyển đổi giữa Menu và Game.
+ Gắn sự kiện bàn phím.
+ Bắt đầu vòng lặp game.
  */
 public final class ArkanoidApp extends Application {
     private GameManager gameManager;
+    private Scene gameScene;
+    private MenuScreen menuScreen;
 
     @Override
     public void start(Stage stage) {
-        // Tạo Canvas theo kích thước cấu hình
+// ====== TẠO GAME SCENE ======
         Canvas canvas = new Canvas(Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gameManager = new GameManager(gc);
 
-        // Tạo Scene và gắn Canvas vào
-        StackPane root = new StackPane(canvas);
-        Scene scene = new Scene(root, Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
+        StackPane gameRoot = new StackPane(canvas);
+        gameScene = new Scene(gameRoot, Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
 
-        // Cấu hình Stage
-        stage.setTitle("Arkanoid");
-        stage.setResizable(false);
-        stage.setScene(scene);
-        stage.show();
-
-        //nhận sự kiện phím
+        // ====== GẮN SỰ KIỆN PHÍM ======
         canvas.setFocusTraversable(true);
         canvas.requestFocus();
 
-        // Gán sự kiện phím: di chuyển, bắt đầu/tạm dừng
-        scene.setOnKeyPressed(e -> {
+        gameScene.setOnKeyPressed(e -> {
             KeyCode code = e.getCode();
             if (code == KeyCode.LEFT || code == KeyCode.A) {
                 gameManager.setLeftPressed(true);
@@ -57,7 +51,7 @@ public final class ArkanoidApp extends Application {
             }
         });
 
-        scene.setOnKeyReleased(e -> {
+        gameScene.setOnKeyReleased(e -> {
             KeyCode code = e.getCode();
             if (code == KeyCode.LEFT || code == KeyCode.A) {
                 gameManager.setLeftPressed(false);
@@ -66,12 +60,23 @@ public final class ArkanoidApp extends Application {
             }
         });
 
-        // Vào menu chờ và khởi động vòng lặp khung hình
-        gameManager.showMenu();
+        // ====== TẠO MENU SCENE ======
+        menuScreen = new MenuScreen(stage, gameManager, gameScene);
+
+        // ====== CẤU HÌNH STAGE BAN ĐẦU ======
+        stage.setTitle("Arkanoid");
+        stage.setResizable(false);
+
+        // Mở menu khi bắt đầu
+        menuScreen.show();
+
+        // Khởi động vòng lặp game (ẩn)
         gameManager.startLoop();
+
+
     }
 
-    /** khởi chạy JavaFX Application */
+    /** Khởi chạy JavaFX Application */
     public static void main(String[] args) {
         launch(args);
     }
