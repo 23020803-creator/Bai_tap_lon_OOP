@@ -9,6 +9,9 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.*;
 import javafx.util.Duration;
 
@@ -98,6 +101,64 @@ public final class GameManager {
             // Tiếp tục phát nhạc nền
             SoundManager.playBGM("BackgroundMusic1.mp3", true);
         }
+    }
+
+    /**
+     * Khởi tạo màn chơi từ file txt thay vì sinh màn ngẫu nhiên
+     */
+    public void startLevelFromFile(String fileName) {
+        score = 0;
+        lives = Config.START_LIVES;
+        state = GameState.RUNNING;
+        initPaddleAndBall();
+        bricks.clear();
+        powerUps.clear();
+        explosions.clear();
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                Objects.requireNonNull(getClass().getResourceAsStream("/Levels/" + fileName))))) {
+
+            List<String> lines = new ArrayList<>();
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (!line.trim().isEmpty()) lines.add(line);
+            }
+
+            int rows = lines.size();
+            int cols = lines.get(0).length();
+            int offsetX = (Config.VIEW_WIDTH - (cols * (Config.BRICK_WIDTH + Config.BRICK_GAP) - Config.BRICK_GAP)) / 2;
+            int offsetY = 60;
+
+            for (int r = 0; r < rows; r++) {
+                for (int c = 0; c < cols; c++) {
+                    char ch = lines.get(r).charAt(c);
+                    double x = offsetX + c * (Config.BRICK_WIDTH + Config.BRICK_GAP);
+                    double y = offsetY + r * (Config.BRICK_HEIGHT + Config.BRICK_GAP);
+
+                    // Đọc ký hiệu gạch từ file
+                    Brick b = switch (ch) {
+                        case 'N' -> new NormalBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                        case 'S' -> new StrongBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                        case 'U' -> new UnbreakableBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                        case 'H' -> new HorizontalExplodeBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                        case 'V' -> new VerticalExplodeBrick(x, y, Config.BRICK_WIDTH, Config.BRICK_HEIGHT);
+                        default -> null;
+                    };
+                    if (b != null) bricks.add(b);
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Không thể đọc level: " + fileName);
+            e.printStackTrace();
+            startGame(); // fallback: random map
+            return;
+        }
+
+        paddle.resetSize();
+        ball.resetSpeed();
+        SoundManager.stopAllBGM();
+        SoundManager.playBGM("BackgroundMusic1.mp3", true);
     }
 
     /**

@@ -43,6 +43,13 @@ public class MenuScreen {
         });
 
         Button levelButton = createButton("LEVELS", "/images_menuscreen/LevelsButton.png", 300, 120);
+        // Mở màn hình chọn level khi ấn LEVELS
+        levelButton.setOnAction(e -> {
+            playClick();
+            LevelSelectScreen levelSelect = new LevelSelectScreen(stage, gameManager, gameScene);
+            levelSelect.show();
+        });
+
         Button settingButton = createButton("SETTING", "/images_menuscreen/SettingButton.png", 300, 120);
         Button exitButton = createButton("EXIT", "/images_menuscreen/ExitButton.png", 300, 120);
         exitButton.setOnAction(e -> {
@@ -92,7 +99,7 @@ public class MenuScreen {
             javafx.scene.image.ImageView iv = new javafx.scene.image.ImageView(img);
             iv.setFitWidth(w);
             iv.setFitHeight(h);
-            iv.setPreserveRatio(false); // hoặc true nếu muốn giữ tỉ lệ
+            iv.setPreserveRatio(false);
             btn.setGraphic(iv);
         } catch (Exception ignored) {
             // nếu thiếu file ảnh thì vẫn hiển thị text (dễ debug)
