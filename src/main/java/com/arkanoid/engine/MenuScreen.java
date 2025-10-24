@@ -25,7 +25,7 @@ public class MenuScreen {
         com.arkanoid.engine.SoundManager.stopAllBGM();
         com.arkanoid.engine.SoundManager.playBGM("OpeningMusic.mp3", true);
         // --- Nền menu ---
-        Image bg = new Image(getClass().getResource("/imagesmenuscreen/Background.png").toExternalForm());
+        Image bg = new Image(getClass().getResource("/images_menuscreen/Background.png").toExternalForm());
         BackgroundImage bgImage = new BackgroundImage(bg, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
                 new BackgroundSize(800, 600, false, false, false, false));
@@ -34,7 +34,7 @@ public class MenuScreen {
         VBox centerMenu = new VBox(-50);
         centerMenu.setAlignment(Pos.CENTER);
 
-        Button playButton = createButton("PLAY", "/imagesmenuscreen/PlayButton.png", 300, 120);
+        Button playButton = createButton("PLAY", "/images_menuscreen/PlayButton.png", 300, 120);
         playButton.setOnAction(e -> {
             playClick();
             gameManager.startGame();
@@ -42,9 +42,9 @@ public class MenuScreen {
             gameScene.getRoot().requestFocus();
         });
 
-        Button levelButton = createButton("LEVELS", "/imagesmenuscreen/LevelsButton.png", 300, 120);
-        Button settingButton = createButton("SETTING", "/imagesmenuscreen/SettingButton.png", 300, 120);
-        Button exitButton = createButton("EXIT", "/imagesmenuscreen/ExitButton.png", 300, 120);
+        Button levelButton = createButton("LEVELS", "/images_menuscreen/LevelsButton.png", 300, 120);
+        Button settingButton = createButton("SETTING", "/images_menuscreen/SettingButton.png", 300, 120);
+        Button exitButton = createButton("EXIT", "/images_menuscreen/ExitButton.png", 300, 120);
         exitButton.setOnAction(e -> {
             playClick();
             stage.close();
@@ -57,7 +57,7 @@ public class MenuScreen {
         topRight.setAlignment(Pos.TOP_RIGHT);
         topRight.setPadding(new Insets(10, 20, 0, 0));
 
-        Button rankingButton = createButton("", "/imagesmenuscreen/RankingButton.png", 100, 100);
+        Button rankingButton = createButton("", "/images_menuscreen/RankingButton.png", 100, 100);
         rankingButton.setPrefSize(60, 60);
         topRight.getChildren().add(rankingButton);
 
