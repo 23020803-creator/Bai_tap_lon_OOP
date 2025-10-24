@@ -105,17 +105,17 @@ public class MenuScreen {
             // nếu thiếu file ảnh thì vẫn hiển thị text (dễ debug)
         }
 
-        // Ẩn hoàn toàn text (vẫn giữ text trong code nếu cần)
-        btn.setText(""); // để chắc chắn chữ không hiển thị
+        // Ẩn hoàn toàn text
+        btn.setText("");
 
-        // Làm nền button trong suốt, bỏ padding mặc định
+        // Làm nền button trong suốt
         btn.setStyle(
                 "-fx-background-color: transparent;" +
                         "-fx-cursor: hand;" +
-                        "-fx-padding: 0;" // tránh padding khiến ảnh bị "co" lại
+                        "-fx-padding: 0;"
         );
 
-        // Hiệu ứng hover (ít mờ khi hover)
+        // Hiệu ứng hover
         btn.setOnMouseEntered(e -> btn.setOpacity(0.85));
         btn.setOnMouseExited(e -> btn.setOpacity(1.0));
 

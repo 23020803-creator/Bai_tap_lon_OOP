@@ -231,8 +231,16 @@ public final class GameManager {
         ball.update();
 
         // Xử lý va chạm tường
-        if (ball.getX() <= 0 || ball.getRight() >= Config.VIEW_WIDTH) {
+        if (ball.getX() <= 0) {
+            ball.setX(0);
             ball.bounceHorizontal();
+            ball.setX(ball.getX() + 0.01);
+            SoundManager.playSFX("HitBall_Anything.wav");
+        }
+        if (ball.getRight() >= Config.VIEW_WIDTH){
+            ball.setX(Config.VIEW_WIDTH - ball.getWidth());
+            ball.bounceHorizontal();
+            ball.setX(ball.getX() - 0.01);
             SoundManager.playSFX("HitBall_Anything.wav");
         }
         if (ball.getY() <= 0) {
