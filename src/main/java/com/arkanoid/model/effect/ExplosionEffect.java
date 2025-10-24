@@ -5,9 +5,8 @@ import javafx.scene.paint.Color;
 
 /**
  * Hiệu ứng nổ tạm thời vẽ trực tiếp bằng GraphicsContext.
- * Lưu ý: đơn giản, frame-based.
  */
-public final class ExplosionEffect {
+public final class  ExplosionEffect {
     private final double x;
     private final double y;
     private int timer; // frame còn lại
@@ -25,30 +24,42 @@ public final class ExplosionEffect {
     }
 
     public void update() {
-        if (timer > 0) timer--;
+        if (timer > 0) {
+            timer--;
+        }
     }
 
+    /**
+     * Vẽ hiệu ứng nổ 3 lớp
+     */
     public void render(GraphicsContext gc) {
-        if (timer <= 0) return;
-        double progress = 1.0 - ((double) timer / (double) Math.max(1, timer + 0)); // relative progress not exact but okay
-        // safer compute current progress as fraction of initial duration:
-        // (We don't store initialDuration here, but we can derive visual effect using timer and maxRadius)
-        double lifeFraction = (double) timer / 20.0; // if timer started at ~20
-        double radius = maxRadius * (1.0 - lifeFraction); // expands then fades
-        // clamp
-        if (radius < 0) radius = maxRadius;
+        if (timer <= 0) {
+            return;
+        }
+        double lifeFraction = (double) timer / 60;
+        double radius = maxRadius * (1.0 - lifeFraction);
+        if (radius < 0) {
+            radius = maxRadius;
+        }
 
-        // alpha depends on remaining timer
-        double alpha = Math.max(0, Math.min(0.9, timer / 20.0));
+        double alpha = Math.max(0, Math.min(0.9, timer / 20));
         gc.save();
-        gc.setGlobalAlpha(alpha);
-        gc.setFill(Color.rgb(255, 200, 120, alpha));
+        // lớp ngoài màu vàng
+        gc.setGlobalAlpha(alpha * 0.4);
+        gc.setFill(Color.rgb(255, 200, 80));
+        gc.fillOval(x - radius * 1.3, y - radius * 1.3, radius * 2.6, radius * 2.6);
+
+        // lớp giữa màu trắng
+        gc.setGlobalAlpha(alpha * 0.9);
+        gc.setFill(Color.rgb(255, 255, 230));
         gc.fillOval(x - radius, y - radius, radius * 2, radius * 2);
 
-        // inner flash
-        gc.setGlobalAlpha(alpha * 0.6);
-        gc.setStroke(Color.rgb(255, 220, 180, alpha));
-        gc.strokeOval(x - radius * 0.6, y - radius * 0.6, radius * 1.2, radius * 1.2);
+        // lớp trong viền lửa màu vàng cam
+        gc.setGlobalAlpha(alpha * 0.8);
+        gc.setStroke(Color.rgb(255, 160, 50));
+        gc.setLineWidth(2.5);
+        double r2 = radius * 0.6;
+        gc.strokeOval(x - r2, y - r2, r2 * 2, r2 * 2);
         gc.restore();
     }
 }

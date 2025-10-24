@@ -15,7 +15,6 @@ import java.util.List;
  */
 public class Renderer {
     private final GraphicsContext gc;
-    private ExplosionEffect[] explosions;
 
     public Renderer(GraphicsContext gc) {
         this.gc = gc;
@@ -85,15 +84,10 @@ public class Renderer {
                           List<Brick> bricks, Paddle paddle, Ball ball,
                           List<PowerUp> powerUps, List<ExplosionEffect> explosions) {
 
+        // xóa nền
         drawBackground();
+        //vẽ thanh điểm và mạng
         drawHud(score, lives);
-
-        // Vẽ hiệu ứng nổ trước (hoặc sau) tùy ý; ở đây vẽ trước để có hiệu ứng nền
-        if (this.explosions != null) {
-            for (ExplosionEffect e : this.explosions) {
-                e.render(gc);
-            }
-        }
 
         // Bricks
         if (bricks != null) {
@@ -112,6 +106,13 @@ public class Renderer {
         // Paddle & Ball
         drawPaddle(paddle);
         drawBall(ball);
+
+        // Vẽ hiệu ứng nổ gạch
+        if (explosions != null) {
+            for(ExplosionEffect  e : explosions){
+                e.render(gc);
+            }
+        }
 
         // Nhắc nhở trạng thái.
         switch (state) {

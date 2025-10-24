@@ -126,7 +126,7 @@ public final class GameManager {
 
                 double roll = rnd.nextDouble();
                 Brick b;
-                // Tỉ lệ cân nhắc (có thể chỉnh):
+                // Tỉ lệ cân gạch:
                 // 0.00 - 0.55 : Normal (55%)
                 // 0.55 - 0.75 : Strong (20%)
                 // 0.75 - 0.85 : Unbreakable (10%)
@@ -201,7 +201,6 @@ public final class GameManager {
 
                 // Nếu gạch là Unbreakable thì chỉ bounce, không phá.
                 if (b instanceof UnbreakableBrick) {
-                    // Không gọi takeHit; chỉ âm thanh
                     SoundManager.playSFX("HitBall_Anything.wav");
                 } else {
                     // Bình thường giảm HP
@@ -303,10 +302,10 @@ public final class GameManager {
     }
 
     /**
-     * Xử lý phá hủy 1 viên gạch nguồn (source).
-     * - Thu thập tất cả các gạch bị phá do hiệu ứng nổ (chain reaction).
+     * Xử lý phá hủy 1 viên gạch nguồn.
+     * - Thu thập tất cả các gạch bị phá do hiệu ứng nổ.
      * - Thêm hiệu ứng nổ (ExplosionEffect) tại vị trí từng gạch.
-     * - Sinh PowerUp cho mỗi viên gạch bị phá (giữ nguyên cơ chế cũ).
+     * - Sinh PowerUp cho mỗi viên gạch bị phá.
      *
      * Trả về số lượng gạch thực sự bị phá.
      */
@@ -314,18 +313,17 @@ public final class GameManager {
         Set<Brick> toDestroy = new HashSet<>();
         collectDestruction(source, toDestroy);
 
-        // Thực hiện loại bỏ và spawn powerups/hiệu ứng
+        // Thực hiện loại bỏ và sinh powerups
         int count = 0;
         Iterator<Brick> it = bricks.iterator();
         while (it.hasNext()) {
             Brick b = it.next();
             if (toDestroy.contains(b)) {
-                // spawn explosion effect at brick center
                 double cx = b.getCenterX();
                 double cy = b.getCenterY();
-                explosions.add(new ExplosionEffect(cx, cy, 20, Math.max(b.getWidth(), b.getHeight()) * 1.8));
+                explosions.add(new ExplosionEffect(cx, cy, 60, Math.min(b.getWidth(), b.getHeight()) ));
 
-                // spawn powerup theo cơ chế cũ (giữ tỉ lệ)
+                // sinh powerup
                 maybeSpawnPowerUp(b);
 
                 it.remove();
@@ -346,10 +344,9 @@ public final class GameManager {
         if (b == null) return;
         if (collector.contains(b)) return;
         if (b instanceof UnbreakableBrick) return; // không phá
-        // add this brick
         collector.add(b);
 
-        // Chain: nếu b là Explode Horizontal/Vertical -> thu thập thêm
+        // nếu b là Explode Horizontal/Vertical -> thu thập thêm
         if (b instanceof HorizontalExplodeBrick) {
             double targetY = b.getCenterY();
             // thu thập mọi viên cùng hàng (so sánh centerY)
@@ -357,7 +354,6 @@ public final class GameManager {
                 if (other == b) continue;
                 if (other instanceof UnbreakableBrick) continue;
                 if (Math.abs(other.getCenterY() - targetY) <= (Config.BRICK_HEIGHT / 2.0 + 1.0)) {
-                    // mark and continue chain
                     collectDestruction(other, collector);
                 }
             }
@@ -376,12 +372,11 @@ public final class GameManager {
 
     /**
      * Sinh PowerUp tại vị trí gạch bị phá.
-     * (Giữ logic cũ, chỉ spawn theo tỉ lệ).
      */
     private void maybeSpawnPowerUp(Brick source) {
         double centerX = source.getCenterX();
         double y = source.getCenterY();
-        // Sinh ngẫu nhiên 3 loại PowerUp - tỉ lệ giống cũ
+        // Sinh ngẫu nhiên 3 loại PowerUp
         PowerUp p;
         double r = Math.random();
         if (r < 0.7) {
