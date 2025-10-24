@@ -69,18 +69,35 @@ public final class Ball extends MovableObject {
      * Bóng luôn bật ngược lên trên.
      */
     public void bounceOff(GameObject other) {
-        // Tính tâm của paddle và độ lệch của bóng
-        double otherCenter = other.getBounds().getMinX() + other.getBounds().getWidth() / 2;
-        double offset = (getCenterX() - otherCenter);
+        // Chuẩn hoá độ lệch va chạm so với tâm paddle
+        double ox = other.getBounds().getMinX();
+        double ow = other.getBounds().getWidth();
+        double otherCenter = ox + ow / 2.0; // tâm paddle
+        double half = ow / 2.0; // một nửa chiều rộng
+        double norm = (getCenterX() - otherCenter) / half;  // chuẩn hóa [-1, 1]
 
-        // Quyết định hướng ngang
-        directionX = (int) Math.signum(offset);
-        if (directionX == 0) {
-            directionX = 1; // Tránh trường hợp đứng yên
+        // Tham số góc min/max
+        final double THETA_MIN = 10.0 * Math.PI/180;  // 10°
+        final double THETA_MAX = 75.0 * Math.PI/180;  // 75°
+        final double GAMMA = 1.35;                // độ lệch nhẹ
+
+        // Góc lệch theo norm
+        double u = Math.pow(Math.abs(norm), GAMMA);           // [0..1]
+        double theta = THETA_MIN + (THETA_MAX - THETA_MIN) * u;
+
+        // Phân rã vận tốc theo góc
+        double newDx = speed * Math.sin(theta);
+        double newDy = speed * Math.cos(theta);
+        if (norm >= 0) {
+            directionX = 1;
+        } else {
+            directionX = -1;
         }
-        directionY = -1; // Luôn bật lên
-        setSpeed(speed);
+        directionY = -1;
+        this.dx = directionX * newDx;
+        this.dy = directionY * newDy;
     }
+
 
     /** Kiểm tra va chạm bằng AABB (Axis-Aligned Bounding Box). */
     public boolean checkCollision(GameObject other) {
