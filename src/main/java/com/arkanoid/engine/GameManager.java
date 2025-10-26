@@ -250,6 +250,7 @@ public final class GameManager {
 
         // Va chạm với Paddle
         if (ball.getBounds().intersects(paddle.getBounds())) {
+            paddle.hitFlash();
             ball.bounceOff(paddle);
             SoundManager.playSFX("HitBall_Anything.wav");
         }

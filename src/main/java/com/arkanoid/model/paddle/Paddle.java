@@ -4,6 +4,9 @@ import com.arkanoid.engine.Config;
 import com.arkanoid.model.object.MovableObject;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 
 /**
  * Lớp Paddle (thanh trượt) do người chơi điều khiển.
@@ -15,6 +18,7 @@ public final class Paddle extends MovableObject {
     private final double baseWidth;
     private int expandLevel;
     private int expandTimer;
+    private int flashTimer = 0;   // giảm dần trong update()
 
     /**
      * Khởi tạo Paddle.
@@ -84,13 +88,70 @@ public final class Paddle extends MovableObject {
                 resetSize();
             }
         }
+        if (flashTimer > 0) {
+            flashTimer--;
+        }
     }
 
     @Override
     public void render(GraphicsContext gc) {
-        // Vẽ Paddle hình chữ nhật bo góc màu xanh nhạt
-        gc.setFill(Color.rgb(120, 220, 160));
-        gc.fillRoundRect(getX(), getY(), getWidth(), getHeight(), 10, 10);
+        double x = getX();
+        double y = getY();
+        double w = getWidth();
+        double h = getHeight();
+        double r = h * 0.8; // bo góc
+
+        // Đổ bóng
+        gc.setGlobalAlpha(0.35);
+        gc.setFill(Color.web("#0A0F0F"));
+        gc.fillRoundRect(x, y + 4, w, h, r, r);
+        gc.setGlobalAlpha(1.0);
+
+        // Màu theo cấp độ paddle
+        String top, bot;
+        switch (expandLevel) {
+            case 2: // Đỏ
+                top = "#FF6B6B"; // đỏ sáng
+                bot = "#C62828"; // đỏ đậm
+                break;
+            case 1: // Cam
+                top = "#FFD166"; // cam sáng
+                bot = "#FF8C42"; // cam đậm
+                break;
+            default: // Vàng
+                top = "#FFF685"; // vàng sáng
+                bot = "#FFD54F"; // vàng đậm
+                break;
+        }
+
+        // Tạo dải màu từ sáng sang đậm
+        LinearGradient body = new LinearGradient(
+                0, 0, 0, 1, true, CycleMethod.NO_CYCLE,
+                new Stop(0, Color.web(top)),
+                new Stop(1, Color.web(bot))
+        );
+        gc.setFill(body);
+        gc.fillRoundRect(x, y, w, h, r, r);
+
+        // Viền tối để tách nền
+        gc.setStroke(Color.web("#2E0A00"));
+        gc.setLineWidth(2);
+        gc.strokeRoundRect(x + 0.5, y + 0.5, w - 1, h - 1, r, r);
+
+        // Đánh bóng paddle
+        gc.setGlobalAlpha(0.18);
+        gc.setFill(Color.WHITE);
+        gc.fillRoundRect(x + 4, y + 3, w - 8, h * 0.45, r, r);
+        gc.setGlobalAlpha(1.0);
+
+        // Flash khi va chạm bóng
+        if (flashTimer > 0) {
+            double a = Math.min(1.0, flashTimer / 8.0);
+            gc.setGlobalAlpha(0.25 * a);
+            gc.setFill(Color.WHITE);
+            gc.fillRoundRect(x - 4, y - 4, w + 4, h + 4, r, r);
+            gc.setGlobalAlpha(1.0);
+        }
     }
 
     // Getter & Setter tốc độ
@@ -101,6 +162,8 @@ public final class Paddle extends MovableObject {
     public void setSpeed(double speed) {
         this.speed = Math.max(1.0, speed);
     }
+
+    public void hitFlash() { this.flashTimer = 10; }
 }
 
 
