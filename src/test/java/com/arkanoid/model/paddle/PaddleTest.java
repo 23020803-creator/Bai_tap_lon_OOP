@@ -1,7 +1,6 @@
 package com.arkanoid.model.paddle;
 
 import com.arkanoid.engine.Config;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

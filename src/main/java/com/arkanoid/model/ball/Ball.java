@@ -98,7 +98,6 @@ public final class Ball extends MovableObject {
         this.dy = directionY * newDy;
     }
 
-
     /** Kiểm tra va chạm bằng AABB (Axis-Aligned Bounding Box). */
     public boolean checkCollision(GameObject other) {
         return getBounds().intersects(other.getBounds());

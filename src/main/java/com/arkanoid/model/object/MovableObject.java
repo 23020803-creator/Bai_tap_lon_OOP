@@ -8,8 +8,8 @@ package com.arkanoid.model.object;
  *   để sử dụng logic di chuyển.
  */
 public abstract class MovableObject extends GameObject {
-    protected double dx; // Vận tốc theo trục X (mỗi frame di chuyển dx pixel)
-    protected double dy; // Vận tốc theo trục Y (mỗi frame di chuyển dy pixel)
+    public double dx; // Vận tốc theo trục X (mỗi frame di chuyển dx pixel)
+    public double dy; // Vận tốc theo trục Y (mỗi frame di chuyển dy pixel)
 
     /**
      * Khởi tạo đối tượng có khả năng di chuyển.
