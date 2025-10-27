@@ -59,6 +59,7 @@ public abstract class PowerUp extends MovableObject {
             case EXPAND_PADDLE -> "/images/powerup/expand_paddle.png";
             case FAST_BALL -> "/images/powerup/fast_ball.png";
             case EXTRA_LIFE -> "/images/powerup/extra_life.png";
+            case TRIPLE_BALL -> "/images/powerup/triple_ball.png";
         };
 
         try {
