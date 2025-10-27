@@ -70,10 +70,13 @@ public class Renderer {
 
     /**
      * Vẽ ball - bóng.
-     * @param ball bóng.
+     * @param balls nhiều bóng.
      */
-    private void drawBall(Ball ball) {
-        if (ball != null) ball.render(gc);
+    private void drawBalls(List<Ball> balls) {
+        if (balls == null) return;
+        for (Ball b : balls) {
+            if (b != null) b.render(gc);
+        }
     }
 
     /**
@@ -81,7 +84,7 @@ public class Renderer {
      * Lưu ý: thêm parameter explosions để vẽ hiệu ứng nổ.
      */
     public void renderAll(GameState state, int score, int lives,
-                          List<Brick> bricks, Paddle paddle, Ball ball,
+                          List<Brick> bricks, Paddle paddle, List<Ball> balls,
                           List<PowerUp> powerUps, List<ExplosionEffect> explosions) {
 
         // xóa nền
@@ -105,7 +108,7 @@ public class Renderer {
 
         // Paddle & Ball
         drawPaddle(paddle);
-        drawBall(ball);
+        drawBalls(balls);
 
         // Vẽ hiệu ứng nổ gạch
         if (explosions != null) {
