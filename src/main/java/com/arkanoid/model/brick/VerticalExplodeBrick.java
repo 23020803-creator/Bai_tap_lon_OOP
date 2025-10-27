@@ -11,7 +11,7 @@ import javafx.scene.paint.Color;
 public final class VerticalExplodeBrick extends Brick {
 
     private static final Image BOMB_IMAGE = new Image(
-            VerticalExplodeBrick.class.getResource("/images_brick/BombSymbol.gif").toExternalForm()
+            VerticalExplodeBrick.class.getResource("/images/brick/BombSymbol.gif").toExternalForm()
     );
 
     public VerticalExplodeBrick(double x, double y, double w, double h) {

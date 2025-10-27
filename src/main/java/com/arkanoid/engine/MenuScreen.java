@@ -24,17 +24,17 @@ public class MenuScreen {
         // Phát nhạc menu.
         com.arkanoid.engine.SoundManager.stopAllBGM();
         com.arkanoid.engine.SoundManager.playBGM("OpeningMusic.mp3", true);
-        // --- Nền menu ---
-        Image bg = new Image(getClass().getResource("/images_menuscreen/Background.png").toExternalForm());
+        // Nền menu.
+        Image bg = new Image(getClass().getResource("/images/menuscreen/Background.png").toExternalForm());
         BackgroundImage bgImage = new BackgroundImage(bg, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
                 new BackgroundSize(800, 600, false, false, false, false));
 
-        // --- Cột chính giữa ---
+        // Cột chính giữa.
         VBox centerMenu = new VBox(-50);
         centerMenu.setAlignment(Pos.CENTER);
 
-        Button playButton = createButton("PLAY", "/images_menuscreen/PlayButton.png", 300, 120);
+        Button playButton = createButton("PLAY", "/images/menuscreen/PlayButton.png", 300, 120);
         playButton.setOnAction(e -> {
             playClick();
             gameManager.startGame();
@@ -42,7 +42,7 @@ public class MenuScreen {
             gameScene.getRoot().requestFocus();
         });
 
-        Button levelButton = createButton("LEVELS", "/images_menuscreen/LevelsButton.png", 300, 120);
+        Button levelButton = createButton("LEVELS", "/images/menuscreen/LevelsButton.png", 300, 120);
         // Mở màn hình chọn level khi ấn LEVELS
         levelButton.setOnAction(e -> {
             playClick();
@@ -50,8 +50,14 @@ public class MenuScreen {
             levelSelect.show();
         });
 
-        Button settingButton = createButton("SETTING", "/images_menuscreen/SettingButton.png", 300, 120);
-        Button exitButton = createButton("EXIT", "/images_menuscreen/ExitButton.png", 300, 120);
+        Button settingButton = createButton("SETTING", "/images/menuscreen/SettingButton.png", 300, 120);
+        settingButton.setOnAction(e -> {
+            playClick();
+            SettingScreen setting = new SettingScreen(stage, gameManager, gameScene);
+            setting.show();
+        });
+
+        Button exitButton = createButton("EXIT", "/images/menuscreen/ExitButton.png", 300, 120);
         exitButton.setOnAction(e -> {
             playClick();
             stage.close();
@@ -59,16 +65,16 @@ public class MenuScreen {
 
         centerMenu.getChildren().addAll(playButton, levelButton, settingButton, exitButton);
 
-        // --- Nút góc trên bên phải (Ranking) ---
+        //Nút góc trên bên phải (Ranking).
         HBox topRight = new HBox();
         topRight.setAlignment(Pos.TOP_RIGHT);
         topRight.setPadding(new Insets(10, 20, 0, 0));
 
-        Button rankingButton = createButton("", "/images_menuscreen/RankingButton.png", 100, 100);
+        Button rankingButton = createButton("", "/images/menuscreen/RankingButton.png", 100, 100);
         rankingButton.setPrefSize(60, 60);
         topRight.getChildren().add(rankingButton);
 
-        // --- Gộp bố cục ---
+        // Gộp bố cục.
         BorderPane root = new BorderPane();
         root.setBackground(new Background(bgImage));
         root.setCenter(centerMenu);
@@ -115,12 +121,10 @@ public class MenuScreen {
                         "-fx-padding: 0;"
         );
 
-        // Hiệu ứng hover
+        // Hiệu ứng hover.
         btn.setOnMouseEntered(e -> btn.setOpacity(0.85));
         btn.setOnMouseExited(e -> btn.setOpacity(1.0));
 
         return btn;
     }
-
-
 }

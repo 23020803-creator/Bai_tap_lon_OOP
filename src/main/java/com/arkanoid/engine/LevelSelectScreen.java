@@ -32,7 +32,7 @@ public class LevelSelectScreen {
         SoundManager.stopAllBGM();
         SoundManager.playBGM("OpeningMusic.mp3", true);
 
-        Image bg = new Image(getClass().getResource("/images_levelselectscreen/LevelSelectScreen.png").toExternalForm());
+        Image bg = new Image(getClass().getResource("/images/levelselectscreen/LevelSelectScreen.png").toExternalForm());
         BackgroundImage bgImage = new BackgroundImage(bg, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
                 new BackgroundSize(800, 600, false, false, false, false));
@@ -66,7 +66,7 @@ public class LevelSelectScreen {
         }
 
         // Nút Back ở góc trên trái
-        Button backButton = createLevelButton("BACK", "/images_levelselectscreen/BackButton.png", 100, 100);
+        Button backButton = createLevelButton("BACK", "/images/levelselectscreen/BackButton.png", 100, 100);
         backButton.setOnAction(e -> {
             playClick();
             MenuScreen menu = new MenuScreen(stage, gameManager, gameScene);

@@ -15,7 +15,7 @@ public final class UnbreakableBrick extends Brick {
     public UnbreakableBrick(double x, double y, double w, double h) {
         super(x, y, w, h, Integer.MAX_VALUE, "UNBREAKABLE");
 
-        lockImage = new Image(getClass().getResource("/images_brick/LockSymbol.png").toExternalForm());
+        lockImage = new Image(getClass().getResource("/images/brick/LockSymbol.png").toExternalForm());
     }
 
     @Override
