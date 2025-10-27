@@ -165,8 +165,18 @@ public final class Ball extends MovableObject {
 
     public void setSpeed(double speed) {
         this.speed = Math.max(1, speed);
-        this.dx = this.speed * directionX;
-        this.dy = this.speed * directionY;
+
+        // Tính hướng bay hiện tại (độ lớn vector vận tốc)
+        double currentMag = Math.hypot(dx, dy);
+        if (currentMag > 0) {
+            // Giữ nguyên hướng bóng và tăng độ lớn vận tốc
+            dx = (dx / currentMag) * this.speed;
+            dy = (dy / currentMag) * this.speed;
+        } else {
+            // Nếu bóng đứng yên thì đặt hướng mặc định
+            dx = this.speed * directionX;
+            dy = this.speed * directionY;
+        }
     }
 }
 

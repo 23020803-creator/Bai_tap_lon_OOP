@@ -163,7 +163,9 @@ public final class Paddle extends MovableObject {
         this.speed = Math.max(1.0, speed);
     }
 
-    public void hitFlash() { this.flashTimer = 10; }
+    public void hitFlash() {
+        this.flashTimer = 10;
+    }
 }
 
 

@@ -266,15 +266,14 @@ public final class GameManager {
                 ball.setX(0);
                 ball.bounceHorizontal();
                 SoundManager.playSFX("HitBall_Anything.wav");
-                ball.setX(ball.getX() + 0.01);
             }
             if (ball.getRight() >= Config.VIEW_WIDTH) {
                 ball.setX(Config.VIEW_WIDTH - ball.getWidth());
                 ball.bounceHorizontal();
                 SoundManager.playSFX("HitBall_Anything.wav");
-                ball.setX(ball.getX() - 0.01);
             }
             if (ball.getY() <= 0) {
+                ball.setY(0);
                 ball.bounceVertical();
                 SoundManager.playSFX("HitBall_Anything.wav");
             }
@@ -282,7 +281,13 @@ public final class GameManager {
             // Va chạm với Paddle
             if (ball.getBounds().intersects(paddle.getBounds())) {
                 paddle.hitFlash();
-                ball.bounceOff(paddle);
+                double oldSpeed = Math.hypot(ball.getDx(), ball.getDy()); // lưu lại vận tốc cũ
+                ball.bounceOff(paddle);                                   // tính lại hướng bóng sau khi va chạm
+                double newSpeed = Math.hypot(ball.getDx(), ball.getDy()); // tính vận tốc mới
+                if (newSpeed > 0) {                                       // chuẩn hóa hướng, khôi phục tốc độ
+                    ball.setDx(ball.getDx() / newSpeed * oldSpeed);
+                    ball.setDy(ball.getDy() / newSpeed * oldSpeed);
+                }
                 SoundManager.playSFX("HitBall_Anything.wav");
             }
 
@@ -290,20 +295,29 @@ public final class GameManager {
             for (Brick b : bricks) {
                 if (!b.isDestroyed() && ball.checkCollision(b)) {
                     Rectangle2D inter = intersection(ball.getBounds(), b.getBounds());
-                    if (inter.getWidth() > inter.getHeight()) {
-                        ball.bounceVertical();
-                    } else {
-                        ball.bounceHorizontal();
+                    if (inter.getWidth() > inter.getHeight()) {             // Va chạm theo chiều dọc
+                        if (ball.getCenterY() < b.getCenterY()) {
+                            ball.setY(b.getY() - ball.getHeight() - 0.5);
+                        } else {
+                            ball.setY(b.getBottom() + 0.5);
+                        }
+                        ball.bounceVertical();                              // Đảo hướng theo trục y (phản xạ)
+                    } else {                                                // Va chạm theo chiều ngang
+                        if (ball.getCenterX() < b.getCenterX()) {
+                            ball.setX(b.getX() - ball.getWidth() - 0.5);
+                        } else {
+                            ball.setX(b.getRight() + 0.5);
+                        }
+                        ball.bounceHorizontal();                            // Đảo hướng theo trục x (phản xạ)
                     }
-                    SoundManager.playSFX("HitBall_Anything.wav");
 
                     // Nếu gạch là Unbreakable thì chỉ bounce, không phá.
                     if (b instanceof UnbreakableBrick) {
                         SoundManager.playSFX("HitBall_UnBreakableBrick.mp3");
                     } else {
-                        // Bình thường giảm HP
+                        SoundManager.playSFX("HitBall_Anything.wav");
+                        // Brick bình thường giảm HP.
                         b.takeHit();
-
                         if (b.isDestroyed()) {
                             // Xử lý phá gạch + nổ (nếu là explode brick) + chain reaction
                             int destroyed = handleBrickDestruction(b);
@@ -315,6 +329,7 @@ public final class GameManager {
                 }
             }
         }
+
         // PowerUp rơi xuống và kiểm tra ăn
         Iterator<PowerUp> pit = powerUps.iterator();
         while (pit.hasNext()) {
@@ -423,7 +438,6 @@ public final class GameManager {
      * - Thu thập tất cả các gạch bị phá do hiệu ứng nổ.
      * - Thêm hiệu ứng nổ (ExplosionEffect) tại vị trí từng gạch.
      * - Sinh PowerUp cho mỗi viên gạch bị phá.
-     *
      * Trả về số lượng gạch thực sự bị phá.
      */
     private int handleBrickDestruction(Brick source) {
@@ -458,9 +472,15 @@ public final class GameManager {
      * - Chain reaction: nếu trong hàng/cột gặp thêm gạch nổ khác, sẽ tiếp tục thu thập.
      */
     private void collectDestruction(Brick b, Set<Brick> collector) {
-        if (b == null) return;
-        if (collector.contains(b)) return;
-        if (b instanceof UnbreakableBrick) return; // không phá
+        if (b == null) {
+            return;
+        }
+        if (collector.contains(b)) {
+            return;
+        }
+        if (b instanceof UnbreakableBrick) { // không phá
+            return;
+        }
         collector.add(b);
 
         // nếu b là Explode Horizontal/Vertical -> thu thập thêm
