@@ -314,94 +314,93 @@ public final class GameManager {
                     break;
                 }
             }
-
-            // PowerUp rơi xuống và kiểm tra ăn
-            Iterator<PowerUp> pit = powerUps.iterator();
-            while (pit.hasNext()) {
-                PowerUp p = pit.next();
-                p.update();
-                if (p.getY() > Config.VIEW_HEIGHT) {
-                    pit.remove(); // rơi khỏi màn hình
-                    continue;
-                }
-                if (p.getBounds().intersects(paddle.getBounds())) {
-                    if (p instanceof TripleBallPowerUp triple) {
-                        // Gọi hiệu ứng nhân bóng
-                        if (!balls.isEmpty()) {
-                            triple.apply(this, balls.getFirst());
-                        }
-                    } else {
-                        // Các PowerUp thông thường
-                        p.applyEffect(paddle, balls.isEmpty() ? null : balls.getFirst());
+        }
+        // PowerUp rơi xuống và kiểm tra ăn
+        Iterator<PowerUp> pit = powerUps.iterator();
+        while (pit.hasNext()) {
+            PowerUp p = pit.next();
+            p.update();
+            if (p.getY() > Config.VIEW_HEIGHT) {
+                pit.remove(); // rơi khỏi màn hình
+                continue;
+            }
+            if (p.getBounds().intersects(paddle.getBounds())) {
+                if (p instanceof TripleBallPowerUp triple) {
+                    // Gọi hiệu ứng nhân bóng
+                    if (!balls.isEmpty()) {
+                        triple.apply(this, balls.getFirst());
                     }
-                    SoundManager.playSFX("HitPaddle_PowerUp.wav"); // Âm thanh hiệu ứng ăn PowerUp
-                    if (p instanceof ExtraLifePowerUp) {
-                        if (lives < Config.MAX_LIVES) {
-                            lives++;
-                        }
-                    }
-                    pit.remove();
-                }
-            }
-
-            // Cập nhật và dọn các hiệu ứng nổ
-            Iterator<ExplosionEffect> eIt = explosions.iterator();
-            while (eIt.hasNext()) {
-                ExplosionEffect e = eIt.next();
-                e.update();
-                if (!e.isAlive()) eIt.remove();
-            }
-
-            // Bỏ các bóng rơi khỏi màn hình
-            Iterator<Ball> bit = balls.iterator();
-            while (bit.hasNext()) {
-                Ball b = bit.next();
-                if (b.getY() > Config.VIEW_HEIGHT) {
-                    bit.remove();
-                }
-            }
-
-            // Khi hết bóng thì bắt đầu trừ mạng.
-            if (balls.isEmpty()) {
-                lives--;
-                if (lives <= 0) {
-                    state = GameState.GAME_OVER;
-                    SoundManager.stopAllBGM();
-                    SoundManager.playBGM("GameOverMusic.mp3", false);
                 } else {
-                    // Sinh thêm 1 bóng trên paddle
-                    Ball nb = new Ball(
-                            paddle.getCenterX() - Config.BALL_SIZE / 2.0,
-                            paddle.getY() - Config.BALL_SIZE - 2,
-                            Config.BALL_SIZE, Config.BALL_SIZE, Config.BALL_SPEED
-                    );
-                    balls.add(nb);
+                    // Các PowerUp thông thường
+                    p.applyEffect(paddle, balls.isEmpty() ? null : balls.getFirst());
                 }
+                SoundManager.playSFX("HitPaddle_PowerUp.wav"); // Âm thanh hiệu ứng ăn PowerUp
+                if (p instanceof ExtraLifePowerUp) {
+                    if (lives < Config.MAX_LIVES) {
+                        lives++;
+                    }
+                }
+                pit.remove();
             }
+        }
 
-            // Kiểm tra thắng
-            boolean anyBreakableLeft = false;
-            for (Brick b : bricks) {
-                if (!(b instanceof UnbreakableBrick)) {
-                    anyBreakableLeft = true;
-                    break;
-                }
-            }
-            // Nếu không còn gạch (tất cả đã bị loại hoặc chỉ còn unbreakable)
-            boolean allDestroyedOrUnbreakable = true;
-            for (Brick b : bricks) {
-                if (!b.isDestroyed() && !(b instanceof UnbreakableBrick)) {
-                    allDestroyedOrUnbreakable = false;
-                    break;
-                }
-            }
+        // Cập nhật và dọn các hiệu ứng nổ
+        Iterator<ExplosionEffect> eIt = explosions.iterator();
+        while (eIt.hasNext()) {
+            ExplosionEffect e = eIt.next();
+            e.update();
+            if (!e.isAlive()) eIt.remove();
+        }
 
-            if ((bricks.isEmpty() || allDestroyedOrUnbreakable) && state == GameState.RUNNING) {
-                state = GameState.WIN;
-                // Phát nhạc thắng
+        // Bỏ các bóng rơi khỏi màn hình
+        Iterator<Ball> bit = balls.iterator();
+        while (bit.hasNext()) {
+            Ball b = bit.next();
+            if (b.getY() > Config.VIEW_HEIGHT) {
+                bit.remove();
+            }
+        }
+
+        // Khi hết bóng thì bắt đầu trừ mạng.
+        if (balls.isEmpty()) {
+            lives--;
+            if (lives <= 0) {
+                state = GameState.GAME_OVER;
                 SoundManager.stopAllBGM();
-                SoundManager.playBGM("GameClearMusic.mp3", false);
+                SoundManager.playBGM("GameOverMusic.mp3", false);
+            } else {
+                // Sinh thêm 1 bóng trên paddle
+                Ball nb = new Ball(
+                        paddle.getCenterX() - Config.BALL_SIZE / 2.0,
+                        paddle.getY() - Config.BALL_SIZE - 2,
+                        Config.BALL_SIZE, Config.BALL_SIZE, Config.BALL_SPEED
+                );
+                balls.add(nb);
             }
+        }
+
+        // Kiểm tra thắng
+        boolean anyBreakableLeft = false;
+        for (Brick b : bricks) {
+            if (!(b instanceof UnbreakableBrick)) {
+                anyBreakableLeft = true;
+                break;
+            }
+        }
+        // Nếu không còn gạch (tất cả đã bị loại hoặc chỉ còn unbreakable)
+        boolean allDestroyedOrUnbreakable = true;
+        for (Brick b : bricks) {
+            if (!b.isDestroyed() && !(b instanceof UnbreakableBrick)) {
+                allDestroyedOrUnbreakable = false;
+                break;
+            }
+        }
+
+        if ((bricks.isEmpty() || allDestroyedOrUnbreakable) && state == GameState.RUNNING) {
+            state = GameState.WIN;
+            // Phát nhạc thắng
+            SoundManager.stopAllBGM();
+            SoundManager.playBGM("GameClearMusic.mp3", false);
         }
     }
 
