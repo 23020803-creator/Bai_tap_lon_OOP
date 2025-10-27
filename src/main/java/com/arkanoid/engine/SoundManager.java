@@ -69,4 +69,16 @@ public class SoundManager {
         }
         bgmMap.clear();
     }
+
+    public static void setBGMVolume(double volume) {
+        for (MediaPlayer player : bgmMap.values()) {
+            player.setVolume(volume);
+        }
+    }
+
+    public static void setSFXVolume(double volume) {
+        for (AudioClip sfx : sfxMap.values()) {
+            sfx.setVolume(volume);
+        }
+    }
 }

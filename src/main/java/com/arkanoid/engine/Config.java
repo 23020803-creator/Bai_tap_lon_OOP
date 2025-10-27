@@ -38,4 +38,18 @@ public final class Config {
 
     // Số mạng tối đa
     public static final int MAX_LIVES = 5;
+
+    // Setting mặc định của nhạc và hiệu ứng âm thanh
+    public static double BGM_VOLUME = 0.7;
+    public static double SFX_VOLUME = 1.0;
+
+    // Tốc độ mặc định của paddle và ball
+    public static double BALL_SPEED_MULTIPLIER = 1.0;
+    public static double PADDLE_SPEED_MULTIPLIER = 1.0;
+
+    // Độ khó
+    public enum Difficulty { EASY, NORMAL, HARD }
+    // Độ khó mặc định
+    public static Difficulty CURRENT_DIFFICULTY = Difficulty.NORMAL;
+
 }
