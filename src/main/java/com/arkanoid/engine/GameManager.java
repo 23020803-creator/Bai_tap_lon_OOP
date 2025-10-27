@@ -81,6 +81,9 @@ public final class GameManager {
      * Method nhân bóng.
      */
     public void spawnClonedBalls(Ball ref, int count) {
+        if (balls.size() >= 10) { // Giới hạn số bóng được nhân ra
+            return;
+        }
         for (int i = 0; i < count; i++) {
             Ball clone = new Ball(
                     ref.getX(), ref.getY(),
@@ -88,8 +91,8 @@ public final class GameManager {
                     Math.hypot(ref.getDx(), ref.getDy())
             );
             // Bóng tạo ra bắn lệch hướng & tốc độ để tách quỹ đạo
-            double fx = (i == 0 ? 1.2 : 0.8);
-            double fy = (i == 0 ? 0.8 : 1.2);
+            double fx = (i == 0 ? 1.7 : 0.3);
+            double fy = (i == 0 ? 0.3 : 1.7);
             clone.setDx(ref.getDx() * fx);
             clone.setDy(ref.getDy() * fy);
             balls.add(clone);
@@ -345,6 +348,10 @@ public final class GameManager {
                     if (!balls.isEmpty()) {
                         triple.apply(this, balls.getFirst());
                     }
+                } else if (p instanceof FastBallPowerUp fastBallPowerUp) {
+                    for (Ball b : balls) {
+                        fastBallPowerUp.applyEffect(paddle, b);
+                    }
                 } else {
                     // Các PowerUp thông thường
                     p.applyEffect(paddle, balls.isEmpty() ? null : balls.getFirst());
@@ -516,7 +523,7 @@ public final class GameManager {
         // Sinh ngẫu nhiên 4 loại PowerUp
         PowerUp p;
         double r = Math.random();
-        if (r < 0.6) {
+        if (r < 0.65) {
             return;
         } else if (r < 0.7) {
             p = new TripleBallPowerUp(centerX - 12, y, 24, 12);
@@ -533,12 +540,21 @@ public final class GameManager {
         powerUps.add(p);
     }
 
-    // Setter cho cờ phím
+    /**
+     * Setter cho cờ phím.
+     */
     public void setLeftPressed(boolean v) {
         leftPressed = v;
     }
 
     public void setRightPressed(boolean v) {
         rightPressed = v;
+    }
+
+    /**
+     * Getter cho danh sách bóng.
+     */
+    public List<Ball> getBalls() {
+        return balls;
     }
 }
