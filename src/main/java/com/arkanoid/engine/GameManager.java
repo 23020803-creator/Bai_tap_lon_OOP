@@ -21,13 +21,13 @@ import javafx.util.Duration;
  * Quản lý logic cập nhật, trạng thái game, va chạm, điểm, mạng, v.v.
  */
 public final class GameManager {
-    private final List<Brick> bricks = new ArrayList<>();   // Danh sách gạch
-    private final List<PowerUp> powerUps = new ArrayList<>(); // Danh sách PowerUp đang rơi
+    private final List<Brick> bricks = new ArrayList<>();               // Danh sách gạch
+    private final List<PowerUp> powerUps = new ArrayList<>();           // Danh sách PowerUp đang rơi
     private final List<ExplosionEffect> explosions = new ArrayList<>(); // Hiệu ứng nổ tạm thời
-    private final Timeline loop;                      // Vòng lặp chính của game
+    private final Timeline loop;                                        // Vòng lặp chính của game
     private Paddle paddle;
-    private Ball ball;
-    private GameState state = GameState.MENU;               // Trạng thái hiện tại
+    private final List<Ball> balls = new ArrayList<>();                 // Danh sách bóng
+    private GameState state = GameState.MENU;                           // Trạng thái hiện tại
     private int score = 0;
     private final Renderer renderer;
     private int lives = Config.START_LIVES;
@@ -42,7 +42,7 @@ public final class GameManager {
             if (state == GameState.RUNNING) {
                 updateGame();
             }
-            renderer.renderAll(state, score, lives, bricks, paddle, ball, powerUps,  explosions);
+            renderer.renderAll(state, score, lives, bricks, paddle, balls, powerUps,  explosions);
         });
         this.loop = new Timeline(frame);
         this.loop.setCycleCount(Timeline.INDEFINITE);
@@ -66,12 +66,34 @@ public final class GameManager {
                 Config.PADDLE_HEIGHT,
                 Config.PADDLE_SPEED);
 
-        ball = new Ball(
+        balls.clear();
+        Ball b0 = new Ball(
                 paddle.getCenterX() - Config.BALL_SIZE / 2.0,
                 paddle.getY() - Config.BALL_SIZE - 2,
                 Config.BALL_SIZE,
                 Config.BALL_SIZE,
-                Config.BALL_SPEED);
+                Config.BALL_SPEED
+        );
+        balls.add(b0);
+    }
+
+    /**
+     * Method nhân bóng.
+     */
+    public void spawnClonedBalls(Ball ref, int count) {
+        for (int i = 0; i < count; i++) {
+            Ball clone = new Ball(
+                    ref.getX(), ref.getY(),
+                    ref.getWidth(), ref.getHeight(),
+                    Math.hypot(ref.getDx(), ref.getDy())
+            );
+            // Bóng tạo ra bắn lệch hướng & tốc độ để tách quỹ đạo
+            double fx = (i == 0 ? 1.2 : 0.8);
+            double fy = (i == 0 ? 0.8 : 1.2);
+            clone.setDx(ref.getDx() * fx);
+            clone.setDy(ref.getDy() * fy);
+            balls.add(clone);
+        }
     }
 
     /**
@@ -125,7 +147,7 @@ public final class GameManager {
             }
 
             int rows = lines.size();
-            int cols = lines.get(0).length();
+            int cols = lines.getFirst().length();
             int offsetX = (Config.VIEW_WIDTH - (cols * (Config.BRICK_WIDTH + Config.BRICK_GAP) - Config.BRICK_GAP)) / 2;
             int offsetY = 60;
 
@@ -156,7 +178,9 @@ public final class GameManager {
         }
 
         paddle.resetSize();
-        ball.resetSpeed();
+        for (Ball b : balls) {
+            b.resetSpeed();
+        }
         SoundManager.stopAllBGM();
         SoundManager.playBGM("BackgroundMusic1.mp3", true);
     }
@@ -209,7 +233,9 @@ public final class GameManager {
         }
 
         paddle.resetSize();
-        ball.resetSpeed();
+        for (Ball b : balls) {
+            b.resetSpeed();
+        }
 
         // Phát nhạc nền khi chơi
         SoundManager.stopAllBGM();
@@ -222,140 +248,161 @@ public final class GameManager {
     public void updateGame() {
         // Di chuyển Paddle & cập nhật trạng thái
         int vx = 0;
-        if (leftPressed)  vx -= (int) paddle.getSpeed();
-        if (rightPressed) vx += (int) paddle.getSpeed();
+        if (leftPressed) {
+            vx -= (int) paddle.getSpeed();
+        }
+        if (rightPressed) {
+            vx += (int) paddle.getSpeed();
+        }
         paddle.setX(Math.max(0, Math.min(Config.VIEW_WIDTH - paddle.getWidth(), paddle.getX() + vx)));
         paddle.update();
 
         // Di chuyển bóng & cập nhật trạng thái
-        ball.update();
+        for (Ball ball : new ArrayList<>(balls)) {
+            ball.update();
 
-        // Xử lý va chạm tường
-        if (ball.getX() <= 0) {
-            ball.setX(0);
-            ball.bounceHorizontal();
-            ball.setX(ball.getX() + 0.01);
-            SoundManager.playSFX("HitBall_Anything.wav");
-        }
-        if (ball.getRight() >= Config.VIEW_WIDTH){
-            ball.setX(Config.VIEW_WIDTH - ball.getWidth());
-            ball.bounceHorizontal();
-            ball.setX(ball.getX() - 0.01);
-            SoundManager.playSFX("HitBall_Anything.wav");
-        }
-        if (ball.getY() <= 0) {
-            ball.bounceVertical();
-            SoundManager.playSFX("HitBall_Anything.wav");
-        }
+            // Xử lý va chạm tường
+            if (ball.getX() <= 0) {
+                ball.setX(0);
+                ball.bounceHorizontal();
+                SoundManager.playSFX("HitBall_Anything.wav");
+                ball.setX(ball.getX() + 0.01);
+            }
+            if (ball.getRight() >= Config.VIEW_WIDTH) {
+                ball.setX(Config.VIEW_WIDTH - ball.getWidth());
+                ball.bounceHorizontal();
+                SoundManager.playSFX("HitBall_Anything.wav");
+                ball.setX(ball.getX() - 0.01);
+            }
+            if (ball.getY() <= 0) {
+                ball.bounceVertical();
+                SoundManager.playSFX("HitBall_Anything.wav");
+            }
 
-        // Va chạm với Paddle
-        if (ball.getBounds().intersects(paddle.getBounds())) {
-            paddle.hitFlash();
-            ball.bounceOff(paddle);
-            SoundManager.playSFX("HitBall_Anything.wav");
-        }
+            // Va chạm với Paddle
+            if (ball.getBounds().intersects(paddle.getBounds())) {
+                paddle.hitFlash();
+                ball.bounceOff(paddle);
+                SoundManager.playSFX("HitBall_Anything.wav");
+            }
 
-        // Va chạm với gạch
-        boolean processedCollision = false;
-        Iterator<Brick> it = bricks.iterator();
-        while (it.hasNext() && !processedCollision) {
-            Brick b = it.next();
-            if (!b.isDestroyed() && ball.checkCollision(b)) {
-                Rectangle2D inter = intersection(ball.getBounds(), b.getBounds());
-                if (inter.getWidth() > inter.getHeight()) {
-                    ball.bounceVertical();
-                } else {
-                    ball.bounceHorizontal();
-                    SoundManager.playSFX("HitBall_Anything.wav");
-                }
-
-                // Nếu gạch là Unbreakable thì chỉ bounce, không phá.
-                if (b instanceof UnbreakableBrick) {
-                    SoundManager.playSFX("HitBall_Anything.wav");
-                } else {
-                    // Bình thường giảm HP
-                    b.takeHit();
-
-                    if (b.isDestroyed()) {
-                        // Xử lý phá gạch + nổ (nếu là explode brick) + chain reaction
-                        int destroyed = handleBrickDestruction(b);
-                        // tăng điểm: mỗi viên 100 điểm
-                        score += destroyed * 100;
+            // Va chạm với gạch
+            for (Brick b : bricks) {
+                if (!b.isDestroyed() && ball.checkCollision(b)) {
+                    Rectangle2D inter = intersection(ball.getBounds(), b.getBounds());
+                    if (inter.getWidth() > inter.getHeight()) {
+                        ball.bounceVertical();
+                    } else {
+                        ball.bounceHorizontal();
                     }
-                }
+                    SoundManager.playSFX("HitBall_Anything.wav");
 
-                processedCollision = true;
-                break;
-            }
-        }
+                    // Nếu gạch là Unbreakable thì chỉ bounce, không phá.
+                    if (b instanceof UnbreakableBrick) {
+                        SoundManager.playSFX("HitBall_UnBreakableBrick.mp3");
+                    } else {
+                        // Bình thường giảm HP
+                        b.takeHit();
 
-        // PowerUp rơi xuống và kiểm tra ăn
-        Iterator<PowerUp> pit = powerUps.iterator();
-        while (pit.hasNext()) {
-            PowerUp p = pit.next();
-            p.update();
-            if (p.getY() > Config.VIEW_HEIGHT) {
-                pit.remove(); // rơi khỏi màn hình
-                continue;
-            }
-
-            if (p.getBounds().intersects(paddle.getBounds())) {
-                p.applyEffect(paddle, ball);
-                SoundManager.playSFX("HitPaddle_PowerUp.wav"); // Âm thanh hiệu ứng ăn PowerUp
-                if (p instanceof ExtraLifePowerUp) {
-                    if(lives < Config.MAX_LIVES) {
-                        lives++;
+                        if (b.isDestroyed()) {
+                            // Xử lý phá gạch + nổ (nếu là explode brick) + chain reaction
+                            int destroyed = handleBrickDestruction(b);
+                            // tăng điểm: mỗi viên 100 điểm
+                            score += destroyed * 100;
+                        }
                     }
+                    break;
                 }
-                pit.remove();
             }
-        }
 
-        // Cập nhật và dọn các hiệu ứng nổ
-        Iterator<ExplosionEffect> eIt = explosions.iterator();
-        while (eIt.hasNext()) {
-            ExplosionEffect e = eIt.next();
-            e.update();
-            if (!e.isAlive()) eIt.remove();
-        }
+            // PowerUp rơi xuống và kiểm tra ăn
+            Iterator<PowerUp> pit = powerUps.iterator();
+            while (pit.hasNext()) {
+                PowerUp p = pit.next();
+                p.update();
+                if (p.getY() > Config.VIEW_HEIGHT) {
+                    pit.remove(); // rơi khỏi màn hình
+                    continue;
+                }
+                if (p.getBounds().intersects(paddle.getBounds())) {
+                    if (p instanceof TripleBallPowerUp triple) {
+                        // Gọi hiệu ứng nhân bóng
+                        if (!balls.isEmpty()) {
+                            triple.apply(this, balls.getFirst());
+                        }
+                    } else {
+                        // Các PowerUp thông thường
+                        p.applyEffect(paddle, balls.isEmpty() ? null : balls.getFirst());
+                    }
+                    SoundManager.playSFX("HitPaddle_PowerUp.wav"); // Âm thanh hiệu ứng ăn PowerUp
+                    if (p instanceof ExtraLifePowerUp) {
+                        if (lives < Config.MAX_LIVES) {
+                            lives++;
+                        }
+                    }
+                    pit.remove();
+                }
+            }
 
-        // Kiểm tra bóng rơi khỏi màn hình
-        if (ball.getY() > Config.VIEW_HEIGHT) {
-            lives--;
-            if (lives <= 0) {
-                state = GameState.GAME_OVER;
-                // Khi hết mạng chơi phát nhạc thua
+            // Cập nhật và dọn các hiệu ứng nổ
+            Iterator<ExplosionEffect> eIt = explosions.iterator();
+            while (eIt.hasNext()) {
+                ExplosionEffect e = eIt.next();
+                e.update();
+                if (!e.isAlive()) eIt.remove();
+            }
+
+            // Bỏ các bóng rơi khỏi màn hình
+            Iterator<Ball> bit = balls.iterator();
+            while (bit.hasNext()) {
+                Ball b = bit.next();
+                if (b.getY() > Config.VIEW_HEIGHT) {
+                    bit.remove();
+                }
+            }
+
+            // Khi hết bóng thì bắt đầu trừ mạng.
+            if (balls.isEmpty()) {
+                lives--;
+                if (lives <= 0) {
+                    state = GameState.GAME_OVER;
+                    SoundManager.stopAllBGM();
+                    SoundManager.playBGM("GameOverMusic.mp3", false);
+                } else {
+                    // Sinh thêm 1 bóng trên paddle
+                    Ball nb = new Ball(
+                            paddle.getCenterX() - Config.BALL_SIZE / 2.0,
+                            paddle.getY() - Config.BALL_SIZE - 2,
+                            Config.BALL_SIZE, Config.BALL_SIZE, Config.BALL_SPEED
+                    );
+                    balls.add(nb);
+                }
+            }
+
+            // Kiểm tra thắng
+            boolean anyBreakableLeft = false;
+            for (Brick b : bricks) {
+                if (!(b instanceof UnbreakableBrick)) {
+                    anyBreakableLeft = true;
+                    break;
+                }
+            }
+            // Nếu không còn gạch (tất cả đã bị loại hoặc chỉ còn unbreakable)
+            boolean allDestroyedOrUnbreakable = true;
+            for (Brick b : bricks) {
+                if (!b.isDestroyed() && !(b instanceof UnbreakableBrick)) {
+                    allDestroyedOrUnbreakable = false;
+                    break;
+                }
+            }
+
+            if ((bricks.isEmpty() || allDestroyedOrUnbreakable) && state == GameState.RUNNING) {
+                state = GameState.WIN;
+                // Phát nhạc thắng
                 SoundManager.stopAllBGM();
-                SoundManager.playBGM("GameOverMusic.mp3", false);
-            } else {
-                ball.resetOnPaddle(paddle);
+                SoundManager.playBGM("GameClearMusic.mp3", false);
             }
         }
-
-        // Kiểm tra thắng
-        boolean anyBreakableLeft = false;
-        for (Brick b : bricks) {
-            if (!(b instanceof UnbreakableBrick)) {
-                anyBreakableLeft = true;
-                break;
-            }
-        }
-        // Nếu không còn gạch (tất cả đã bị loại hoặc chỉ còn unbreakable)
-        boolean allDestroyedOrUnbreakable = true;
-        for (Brick b : bricks) {
-            if (!b.isDestroyed() && !(b instanceof UnbreakableBrick)) {
-                allDestroyedOrUnbreakable = false;
-                break;
-            }
-        }
-
-        if ((bricks.isEmpty() || allDestroyedOrUnbreakable) && state == GameState.RUNNING) {
-            state = GameState.WIN;
-            // Phát nhạc thắng
-            SoundManager.stopAllBGM();
-            SoundManager.playBGM("GameClearMusic.mp3", false);
-        }
-
     }
 
     /**
@@ -366,8 +413,9 @@ public final class GameManager {
         double y1 = Math.max(a.getMinY(), b.getMinY());
         double x2 = Math.min(a.getMaxX(), b.getMaxX());
         double y2 = Math.min(a.getMaxY(), b.getMaxY());
-        if (x2 >= x1 && y2 >= y1)
+        if (x2 >= x1 && y2 >= y1) {
             return new Rectangle2D(x1, y1, x2 - x1, y2 - y1);
+        }
         return Rectangle2D.EMPTY;
     }
 
@@ -446,11 +494,13 @@ public final class GameManager {
     private void maybeSpawnPowerUp(Brick source) {
         double centerX = source.getCenterX();
         double y = source.getCenterY();
-        // Sinh ngẫu nhiên 3 loại PowerUp
+        // Sinh ngẫu nhiên 4 loại PowerUp
         PowerUp p;
         double r = Math.random();
-        if (r < 0.7) {
+        if (r < 0.6) {
             return;
+        } else if (r < 0.7) {
+            p = new TripleBallPowerUp(centerX - 12, y, 24, 12);
         } else if (r < 0.8) {
             // Tạo PowerUp mở rộng Paddle
             p = new ExpandPaddlePowerUp(centerX - 12, y, 24, 12);
