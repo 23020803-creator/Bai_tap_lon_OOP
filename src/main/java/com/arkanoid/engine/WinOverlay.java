@@ -33,6 +33,8 @@ public final class WinOverlay extends VBox {
         // Nút Continue
         Button continueBtn = createButton("CONTINUE", retroFont);
         continueBtn.setOnAction(e -> {
+            root.getChildren().remove(this);
+            ScoreManager.saveScoreIfHigh();
             if (gm.getFromLevels()) {
                 gm.nextLevel();
             } else {

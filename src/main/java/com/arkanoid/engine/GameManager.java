@@ -147,7 +147,7 @@ public final class GameManager {
         }
 
         // Load level tiếp theo từ file
-        String nextFile = "/levels/Level" + currentLevel + ".txt";
+        String nextFile = "Level" + currentLevel + ".txt";
         startLevelFromFile(nextFile);
     }
 
