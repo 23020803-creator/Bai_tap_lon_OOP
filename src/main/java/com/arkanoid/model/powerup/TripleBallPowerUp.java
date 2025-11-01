@@ -15,6 +15,10 @@ public class TripleBallPowerUp extends PowerUp {
     public void applyEffect(Paddle paddle, Ball mainBall) {}
 
     public void apply(GameManager gm, Ball reference) {
+        if (gm == null || reference == null) {
+            return;
+        }
+
         List<Ball> existingBalls = new ArrayList<>(gm.getBalls());
         for (Ball refBall : existingBalls) {
             gm.spawnClonedBalls(refBall, 2);  // Mỗi bóng hiện tại nhân ra thành 3 bóng
