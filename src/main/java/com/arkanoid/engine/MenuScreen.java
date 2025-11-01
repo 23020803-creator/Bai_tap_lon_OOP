@@ -72,7 +72,14 @@ public class MenuScreen {
 
         Button rankingButton = createButton("", "/images/menuscreen/RankingButton.png", 100, 100);
         rankingButton.setPrefSize(60, 60);
+        rankingButton.setOnAction(e -> {
+            playClick();
+            RankingScreen ranking = new RankingScreen(stage, gameManager, gameScene);
+            ranking.show();
+        });
         topRight.getChildren().add(rankingButton);
+
+
 
         // Gộp bố cục.
         BorderPane root = new BorderPane();
