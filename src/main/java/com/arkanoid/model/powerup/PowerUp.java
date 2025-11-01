@@ -22,7 +22,6 @@ public abstract class PowerUp extends MovableObject {
      * @param x vị trí X
      * @param y vị trí Y
      * @param w chiều rộng hiển thị
-     * @param h chiều cao hiển thị
      * @param type loại PowerUp
      */
     protected PowerUp(double x, double y, double w, double h, PowerUpType type) {
@@ -30,6 +29,13 @@ public abstract class PowerUp extends MovableObject {
         this.type = type;
         this.setDy(2); // Tốc độ rơi mặc định = 2 pixel/frame
         loadIcon();    // load ảnh
+    }
+
+    /**
+     * Trả về loại của PowerUp hiện tại.
+     */
+    public PowerUpType getType() {
+        return type;
     }
 
     /**
@@ -46,7 +52,9 @@ public abstract class PowerUp extends MovableObject {
         setY(getY() + getDy());
     }
 
-    /** Lấy loại PowerUp. */
+    /**
+     *  Lấy loại PowerUp.
+     */
     public PowerUpType getPowerUpType() {
         return type;
     }
