@@ -23,7 +23,13 @@ public class SettingScreen {
     private final Stage stage;
     private final GameManager gameManager;
     private final Scene gameScene;
-
+    private static final Font RETRO_FONT = Font.loadFont(
+            SettingScreen.class.getResourceAsStream("/fonts/PressStart2P.ttf"), 16);
+    private static final Font RETRO_TITLE = Font.loadFont(
+            SettingScreen.class.getResourceAsStream("/fonts/PressStart2P.ttf"), 26);
+    /**
+     * Khởi tạo màn hình cài đặt.
+     */
     public SettingScreen(Stage stage, GameManager gameManager, Scene gameScene) {
         this.stage = stage;
         this.gameManager = gameManager;
@@ -34,15 +40,9 @@ public class SettingScreen {
      * Hiển thị màn hình cài đặt.
      */
     public void show() {
-        // Load phông chữ retro.
-        Font retroFont = Font.loadFont(
-                getClass().getResourceAsStream("/fonts/PressStart2P.ttf"), 16);
-        Font retroTitle = Font.loadFont(
-                getClass().getResourceAsStream("/fonts/PressStart2P.ttf"), 26);
-
-        // Hiển thị tiêu đề.
+        // Hiển thị tiêu đề
         Label title = new Label("SETTINGS");
-        title.setFont(retroTitle);
+        title.setFont(RETRO_TITLE);
         title.setTextFill(Color.CYAN);
 
         DropShadow glow = new DropShadow();
@@ -53,9 +53,8 @@ public class SettingScreen {
 
         // Âm lượng nhạc BGM.
         Label bgmLabel = new Label("MUSIC VOLUME: ");
-        bgmLabel.setFont(retroFont);
+        bgmLabel.setFont(RETRO_FONT);
         bgmLabel.setTextFill(Color.WHITE);
-        bgmLabel.setAlignment(Pos.CENTER_RIGHT);
         Slider bgmSlider = createSlider(Config.BGM_VOLUME, val -> {
             Config.BGM_VOLUME = val;
             SoundManager.setBGMVolume(val);
@@ -65,9 +64,8 @@ public class SettingScreen {
 
         // Âm lượng hiệu ứng âm thanh SFX.
         Label sfxLabel = new Label("SOUND EFFECTS:");
-        sfxLabel.setFont(retroFont);
+        sfxLabel.setFont(RETRO_FONT);
         sfxLabel.setTextFill(Color.WHITE);
-        sfxLabel.setAlignment(Pos.CENTER_RIGHT);
         Slider sfxSlider = createSlider(Config.SFX_VOLUME, val -> {
             Config.SFX_VOLUME = val;
             SoundManager.setSFXVolume(val);
@@ -77,29 +75,48 @@ public class SettingScreen {
 
         // Độ khó
         Label diffLabel = new Label("DIFFICULTY:");
-        diffLabel.setFont(retroFont);
+        diffLabel.setFont(RETRO_FONT);
         diffLabel.setTextFill(Color.WHITE);
         diffLabel.setAlignment(Pos.CENTER_RIGHT);
         ComboBox<String> diffBox = new ComboBox<>();
         diffBox.getItems().addAll("EASY", "NORMAL", "HARD");
         diffBox.setValue(Config.CURRENT_DIFFICULTY.name());
         diffBox.setOnAction(e -> updateDifficulty(diffBox.getValue()));
-        diffBox.setStyle("-fx-font-family: 'Press Start 2P'; -fx-font-size: 12px;");
+        diffBox.setStyle("-fx-font-family: 'Press Start 2P'; -fx-font-size: 12px; -fx-padding: 3 0 0 0");
         HBox diffRow = new HBox(20, diffLabel, diffBox);
         sfxRow.setAlignment(Pos.CENTER_LEFT);
 
         // Nút quay lại
         Button backButton = new Button("BACK TO MENU");
-        backButton.setFont(retroFont);
+        backButton.setFont(RETRO_FONT);
         backButton.setTextFill(Color.WHITE);
+        // Nút "BACK TO MENU" với hiệu ứng màu và viền trắng
         backButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #0040ff, #00bfff);" +
-                        "-fx-background-radius: 15; -fx-padding: 10 25 10 25;"
+                "-fx-background-color: linear-gradient(to bottom, #0033cc, #00aaff);"
+                        + "-fx-background-radius: 8;" + "-fx-border-color: white;"
+                        + "-fx-border-width: 4;" + "-fx-border-radius: 8;"
+                        + "-fx-padding: 14 35 10 35;" + "-fx-font-weight: bold;"
         );
+        // Hiệu ứng sáng hơn khi di chuột vào
+        backButton.setOnMouseEntered(e -> backButton.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #0044ff, #33ccff);"
+                        + "-fx-background-radius: 8;" + "-fx-border-color: white;"
+                        + "-fx-border-width: 4;" + "-fx-border-radius: 8;" + "-fx-padding: 14 35 10 35;"
+        ));
+        // Trở lại màu gốc khi rời chuột khỏi nút
+        backButton.setOnMouseExited(e -> backButton.setStyle(
+                "-fx-background-color: linear-gradient(to bottom, #0033cc, #00aaff);"
+                        + "-fx-background-radius: 8;" + "-fx-border-color: white;"
+                        + "-fx-border-width: 4;" + "-fx-border-radius: 8;" + "-fx-padding: 14 35 10 35;"
+        ));
         backButton.setOnAction(e -> new MenuScreen(stage, gameManager, gameScene).show());
 
         // Layout chính
-        VBox root = new VBox(45, title, bgmRow, sfxRow, diffRow, backButton);
+        VBox settingsBox = new VBox(35, bgmRow, sfxRow, diffRow);
+        settingsBox.setAlignment(Pos.CENTER);
+        HBox backBox = new HBox(backButton);
+        backBox.setAlignment(Pos.CENTER);
+        VBox root = new VBox(45, title, settingsBox, backBox);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(50));
         root.setStyle("-fx-background-color: #000000;");
