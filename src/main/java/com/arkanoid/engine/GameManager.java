@@ -14,7 +14,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 import javafx.util.Duration;
-
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 /**
  * Bộ điều khiển chính của game.
@@ -33,6 +34,66 @@ public final class GameManager {
     private int lives = Config.START_LIVES;
     private volatile boolean leftPressed = false;
     private volatile boolean rightPressed = false;
+    private Stage stage;
+    private Scene gameScene;
+
+    /**
+     * Setter cho cờ phím.
+     */
+    public void setLeftPressed(boolean v) {
+        leftPressed = v;
+    }
+
+    public void setRightPressed(boolean v) {
+        rightPressed = v;
+    }
+
+    /**
+     * Getter cho danh sách bóng.
+     */
+    public List<Ball> getBalls() {
+        return balls;
+    }
+
+    /**
+     * Liên kết Stage và Scene hiện tại cho GameManager, giúp chuyển giữa game, menu
+     * và màn hình cài đặt.
+     *
+     * @param stage cửa sổ chính của game
+     * @param scene scene hiện tại đang hiển thị game
+     */
+    public void setStageAndScene(Stage stage, Scene scene) {
+        this.stage = stage;
+        this.gameScene = scene;
+    }
+
+    /**
+     * Tạm dừng game ngay lập tức.
+     */
+    public void pauseGame() {
+        if (state == GameState.RUNNING) {
+            state = GameState.PAUSED;
+            SoundManager.stopAllBGM();
+        }
+    }
+
+    /**
+     *  Tiếp tục game sau khi pause.
+     */
+    public void resumeGame() {
+        if (state == GameState.PAUSED) {
+            state = GameState.RUNNING;
+            SoundManager.playBGM("BackgroundMusic1.mp3", true);
+        }
+    }
+
+    public boolean isRunning() {
+        return state == GameState.RUNNING;
+    }
+
+    public boolean isPaused() {
+        return state == GameState.PAUSED;
+    }
 
     public GameManager(GraphicsContext gc) {
         this.renderer = new Renderer(gc);
@@ -120,12 +181,9 @@ public final class GameManager {
      */
     public void togglePause() {
         if (state == GameState.RUNNING) {
-            state = GameState.PAUSED;
-            SoundManager.stopAllBGM(); // Khi nhấn dừng thì ngừng phát âm thanh
+            pauseGame();
         } else if (state == GameState.PAUSED) {
-            state = GameState.RUNNING;
-            // Tiếp tục phát nhạc nền
-            SoundManager.playBGM("BackgroundMusic1.mp3", true);
+            resumeGame();
         }
     }
 
@@ -543,23 +601,5 @@ public final class GameManager {
             p = new ExtraLifePowerUp(centerX - 12, y, 24, 12);
         }
         powerUps.add(p);
-    }
-
-    /**
-     * Setter cho cờ phím.
-     */
-    public void setLeftPressed(boolean v) {
-        leftPressed = v;
-    }
-
-    public void setRightPressed(boolean v) {
-        rightPressed = v;
-    }
-
-    /**
-     * Getter cho danh sách bóng.
-     */
-    public List<Ball> getBalls() {
-        return balls;
     }
 }
