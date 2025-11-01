@@ -31,7 +31,7 @@ public class SoundManager {
         Media media = new Media(url.toString());
         MediaPlayer player = new MediaPlayer(media);
         if (loop) player.setCycleCount(MediaPlayer.INDEFINITE);
-        player.setVolume(0.7);
+        player.setVolume(Config.BGM_VOLUME);
         player.play();
 
         bgmMap.put(fileName, player);
@@ -48,6 +48,7 @@ public class SoundManager {
         }
 
         AudioClip clip = new AudioClip(url.toString());
+        clip.setVolume(Config.SFX_VOLUME);
         clip.play();
         sfxMap.put(fileName, clip);
     }
@@ -71,12 +72,14 @@ public class SoundManager {
     }
 
     public static void setBGMVolume(double volume) {
+        Config.BGM_VOLUME = volume;
         for (MediaPlayer player : bgmMap.values()) {
             player.setVolume(volume);
         }
     }
 
     public static void setSFXVolume(double volume) {
+        Config.SFX_VOLUME = volume;
         for (AudioClip sfx : sfxMap.values()) {
             sfx.setVolume(volume);
         }

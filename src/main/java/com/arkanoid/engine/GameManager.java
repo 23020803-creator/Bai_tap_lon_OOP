@@ -64,7 +64,8 @@ public final class GameManager {
                 Config.VIEW_HEIGHT - 60,
                 Config.PADDLE_WIDTH,
                 Config.PADDLE_HEIGHT,
-                Config.PADDLE_SPEED);
+                Config.PADDLE_SPEED + Config.BALL_SPEED_MULTIPLIER
+        );
 
         balls.clear();
         Ball b0 = new Ball(
@@ -72,7 +73,7 @@ public final class GameManager {
                 paddle.getY() - Config.BALL_SIZE - 2,
                 Config.BALL_SIZE,
                 Config.BALL_SIZE,
-                Config.BALL_SPEED
+                Config.BALL_SPEED + Config.PADDLE_SPEED_MULTIPLIER
         );
         balls.add(b0);
     }
@@ -203,7 +204,8 @@ public final class GameManager {
         powerUps.clear();
         explosions.clear();
 
-        int offsetX = (Config.VIEW_WIDTH - (Config.BRICK_COLS * (Config.BRICK_WIDTH + Config.BRICK_GAP) - Config.BRICK_GAP)) / 2;
+        int offsetX = (Config.VIEW_WIDTH - (Config.BRICK_COLS * (Config.BRICK_WIDTH
+                + Config.BRICK_GAP) - Config.BRICK_GAP)) / 2;
         int offsetY = 60;
         Random rnd = new Random();
 
