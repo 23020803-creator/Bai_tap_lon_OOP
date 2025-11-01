@@ -320,6 +320,9 @@ public final class GameManager {
                     if (b instanceof UnbreakableBrick) {
                         SoundManager.playSFX("HitBall_UnBreakableBrick.mp3");
                     } else {
+                        if (b instanceof HorizontalExplodeBrick || b instanceof VerticalExplodeBrick) {
+                            SoundManager.playSFX("HitBall_ExplodeBrick.wav");
+                        }
                         SoundManager.playSFX("HitBall_Anything.wav");
                         // Brick bình thường giảm HP.
                         b.takeHit();
