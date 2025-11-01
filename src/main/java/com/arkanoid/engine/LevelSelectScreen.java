@@ -32,12 +32,10 @@ public class LevelSelectScreen {
         SoundManager.stopAllBGM();
         SoundManager.playBGM("OpeningMusic.mp3", true);
 
-        Image bg = new Image(getClass().getResource(
-                "/images/levelselectscreen/LevelSelectScreen.png").toExternalForm());
+        Image bg = new Image(getClass().getResource("/images/levelselectscreen/LevelSelectScreen.png").toExternalForm());
         BackgroundImage bgImage = new BackgroundImage(bg, BackgroundRepeat.NO_REPEAT,
                 BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,
-                new BackgroundSize(800, 600, false,
-                        false, false, false));
+                new BackgroundSize(800, 600, false, false, false, false));
 
         // Dùng GridPane thay cho VBox
         GridPane grid = new GridPane();
@@ -51,8 +49,7 @@ public class LevelSelectScreen {
         int row = 0;
         for (int i = 1; i <= TOTAL_LEVELS; i++) {
             String levelName = "Level" + i;
-            Button btn = createLevelButton(levelName, "/images/levelselectscreen/Level"
-                    + i + "Button.png", 120, 120);
+            Button btn = createLevelButton(levelName, "/images_levelselectscreen/Level" + i + "Button.png", 120, 120);
             btn.setOnAction(e -> {
                 playClick();
                 gameManager.startLevelFromFile(levelName + ".txt");
@@ -69,8 +66,7 @@ public class LevelSelectScreen {
         }
 
         // Nút Back ở góc trên trái
-        Button backButton = createLevelButton("BACK",
-                "/images/levelselectscreen/BackButton.png", 100, 100);
+        Button backButton = createLevelButton("BACK", "/images/levelselectscreen/BackButton.png", 100, 100);
         backButton.setOnAction(e -> {
             playClick();
             MenuScreen menu = new MenuScreen(stage, gameManager, gameScene);
@@ -119,8 +115,8 @@ public class LevelSelectScreen {
 
     private void playClick() {
         try {
-            javafx.scene.media.AudioClip click = new javafx.scene.media.AudioClip(getClass()
-                    .getResource("/sounds/click.wav").toExternalForm());
+            javafx.scene.media.AudioClip click = new javafx.scene.media.AudioClip(
+                    getClass().getResource("/sounds/click.wav").toExternalForm());
             click.play();
         } catch (Exception ignored) {}
     }
