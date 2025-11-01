@@ -10,9 +10,12 @@ import javafx.animation.Timeline;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
 import com.arkanoid.engine.ScoreManager;
+
+import javafx.scene.image.Image;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
+import java.util.List;
 
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
@@ -32,6 +35,7 @@ public final class GameManager {
     private final List<Ball> balls = new ArrayList<>();                 // Danh sách bóng
     private GameState state = GameState.MENU;                           // Trạng thái hiện tại
     private int score = 0;
+    private Image background;
     private final Renderer renderer;
     private int lives = Config.START_LIVES;
     private volatile boolean leftPressed = false;
@@ -156,6 +160,10 @@ public final class GameManager {
         ScoreManager.add(oldScore);
     }
 
+    public Image getBackground() {
+        return background;
+    }
+
     public GameManager(GraphicsContext gc) {
         this.renderer = new Renderer(gc);
         double frameDuration = 1000.0 / 60.0; // FPS = 60
@@ -164,7 +172,7 @@ public final class GameManager {
             if (state == GameState.RUNNING) {
                 updateGame();
             }
-            renderer.renderAll(state, score, lives, bricks, paddle, balls, powerUps,  explosions);
+            renderer.renderAll(state, score, lives, bricks, paddle, balls, powerUps, explosions, background);
         });
         this.loop = new Timeline(frame);
         this.loop.setCycleCount(Timeline.INDEFINITE);
@@ -271,6 +279,14 @@ public final class GameManager {
         powerUps.clear();
         explosions.clear();
 
+        try {
+            String bgPath = "/images/backgrounds/bg_level" + currentLevel + ".png";
+            background = new Image(Objects.requireNonNull(getClass().getResourceAsStream(bgPath)));
+        } catch (Exception e) {
+            // Nếu không có ảnh riêng thì dùng ảnh mặc định
+            background = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/backgrounds/bg_default.png")));
+        }
+
         try (BufferedReader br = new BufferedReader(new InputStreamReader(
                 Objects.requireNonNull(getClass().getResourceAsStream("/Levels/" + fileName))))) {
 
@@ -336,6 +352,8 @@ public final class GameManager {
         bricks.clear();
         powerUps.clear();
         explosions.clear();
+
+        background = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/backgrounds/bg_arcade.png")));
 
         int offsetX = (Config.VIEW_WIDTH - (Config.BRICK_COLS * (Config.BRICK_WIDTH
                 + Config.BRICK_GAP) - Config.BRICK_GAP)) / 2;

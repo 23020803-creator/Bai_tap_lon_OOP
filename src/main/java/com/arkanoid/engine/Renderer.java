@@ -8,6 +8,8 @@ import com.arkanoid.model.powerup.PowerUp;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+
+import javafx.scene.image.Image;
 import java.util.List;
 
 /**
@@ -21,12 +23,17 @@ public class Renderer {
     }
 
     /**
-     * Tô đen để xóa hình ảnh cũ của game.
+     * Vẽ background tùy chế độ chơi.
      */
-    private void drawBackground() {
-        gc.setFill(Color.web("#101016"));
-        gc.fillRect(0, 0, Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
+    private void drawBackground(Image bg) {
+        if (bg != null) {
+            gc.drawImage(bg, 0, 0, Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
+        } else {
+            gc.setFill(Color.web("#101016"));
+            gc.fillRect(0, 0, Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
+        }
     }
+
 
     /**
      * In ra điểm và mạng lên màn hình.
@@ -85,10 +92,14 @@ public class Renderer {
      */
     public void renderAll(GameState state, int score, int lives,
                           List<Brick> bricks, Paddle paddle, List<Ball> balls,
-                          List<PowerUp> powerUps, List<ExplosionEffect> explosions) {
+                          List<PowerUp> powerUps, List<ExplosionEffect> explosions, Image background) {
 
-        // xóa nền
-        drawBackground();
+        // Vẽ background
+        if (background != null) {
+            gc.drawImage(background, 0, 0, Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
+        } else {
+            drawBackground(background); // fallback nếu chưa có background
+        }
         //vẽ thanh điểm và mạng
         drawHud(score, lives);
 
