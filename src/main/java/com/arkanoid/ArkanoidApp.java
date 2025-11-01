@@ -27,6 +27,7 @@ public final class ArkanoidApp extends Application {
 
         // StackPane để chồng lớp (canvas + overlay)
         StackPane root = new StackPane(canvas);
+        gameManager.setRoot(root);
         gameScene = new Scene(root, Config.VIEW_WIDTH, Config.VIEW_HEIGHT);
 
         // Gán Stage & Scene cho GameManager

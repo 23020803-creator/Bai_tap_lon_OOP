@@ -9,10 +9,12 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
-
+import com.arkanoid.engine.ScoreManager;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
+
+import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -36,6 +38,10 @@ public final class GameManager {
     private volatile boolean rightPressed = false;
     private Stage stage;
     private Scene gameScene;
+    public boolean isFromLevels = false; // true nếu chơi từ chế độ Levels
+    private StackPane root; // lưu root để overlay có thể hiển thị
+    private int currentLevel = 1;
+    private static final int TOTAL_LEVELS = 8;
 
     /**
      * Setter cho cờ phím.
@@ -53,6 +59,29 @@ public final class GameManager {
      */
     public List<Ball> getBalls() {
         return balls;
+    }
+
+    public void setRoot(StackPane root) {
+        this.root = root;
+    }
+
+
+    public void setFromLevels(boolean fromLevels) {
+        this.isFromLevels = fromLevels;
+    }
+
+    /**
+     * Getter cho chế độ chơi
+     */
+    public boolean getFromLevels() {
+        return isFromLevels;
+    }
+
+    /**
+     * Getter cho Level hiện tại
+     */
+    public int getCurrentLevel() {
+        return currentLevel;
     }
 
     /**
@@ -93,6 +122,38 @@ public final class GameManager {
 
     public boolean isPaused() {
         return state == GameState.PAUSED;
+    }
+
+    /**
+     * Màn chơi mới sau khi Win hoặc Level kế tiếp
+     */
+    public void nextLevel() {
+        if (!isFromLevels) {
+            // Chế độ random (từ Menu)
+            startGameKeepScore(); // chơi tiếp, giữ điểm
+            return;
+        }
+
+        // Sang level kế
+        currentLevel++;
+        if (currentLevel > TOTAL_LEVELS) {
+            // Nếu đã hết level
+            new MenuScreen(stage, this, gameScene).show();
+            return;
+        }
+
+        // Load level tiếp theo từ file
+        String nextFile = "/levels/Level" + currentLevel + ".txt";
+        startLevelFromFile(nextFile);
+    }
+
+    /**
+     * Lưu điểm sau khi Win để cộng dồn với màn chơi mới
+     */
+    public void startGameKeepScore() {
+        int oldScore = ScoreManager.getCurrentScore();
+        startGame();
+        ScoreManager.add(oldScore);
     }
 
     public GameManager(GraphicsContext gc) {
@@ -187,10 +248,21 @@ public final class GameManager {
         }
     }
 
+
     /**
      * Khởi tạo màn chơi từ file txt thay vì sinh màn ngẫu nhiên
      */
     public void startLevelFromFile(String fileName) {
+        isFromLevels = true;
+
+        try {
+            String num = fileName.replaceAll("\\D+", "");
+            currentLevel = Integer.parseInt(num);
+        } catch (Exception ignored) {
+            currentLevel = 1;
+        }
+
+        ScoreManager.resetScore();
         score = 0;
         lives = Config.START_LIVES;
         state = GameState.RUNNING;
@@ -252,6 +324,9 @@ public final class GameManager {
      * Sinh map động: hỗn hợp các loại gạch (NORMAL, STRONG, UNBREAKABLE, H_EXPLODE, V_EXPLODE)
      */
     public void startGame() {
+        isFromLevels = false;
+        currentLevel = 1;
+        ScoreManager.resetScore();
         score = 0;
         lives = Config.START_LIVES;
         state = GameState.RUNNING;
@@ -385,10 +460,9 @@ public final class GameManager {
                         // Brick bình thường giảm HP.
                         b.takeHit();
                         if (b.isDestroyed()) {
-                            // Xử lý phá gạch + nổ (nếu là explode brick) + chain reaction
                             int destroyed = handleBrickDestruction(b);
-                            // tăng điểm: mỗi viên 100 điểm
-                            score += destroyed * 100;
+                            ScoreManager.add(destroyed * 100);
+                            score = ScoreManager.getCurrentScore();
                         }
                     }
                     break;
@@ -451,9 +525,14 @@ public final class GameManager {
             lives--;
             if (lives <= 0) {
                 state = GameState.GAME_OVER;
+                ScoreManager.saveScoreIfHigh();
                 SoundManager.stopAllBGM();
                 SoundManager.playBGM("GameOverMusic.mp3", false);
-            } else {
+
+                javafx.application.Platform.runLater(() -> {
+                    root.getChildren().add(new LoseOverlay(stage, this, root, isFromLevels));
+                });
+            }else {
                 // Sinh thêm 1 bóng trên paddle
                 Ball nb = new Ball(
                         paddle.getCenterX() - Config.BALL_SIZE / 2.0,
@@ -482,11 +561,17 @@ public final class GameManager {
         }
 
         if ((bricks.isEmpty() || allDestroyedOrUnbreakable) && state == GameState.RUNNING) {
+            ScoreManager.add(500);
+            score = ScoreManager.getCurrentScore();
             state = GameState.WIN;
-            // Phát nhạc thắng
             SoundManager.stopAllBGM();
             SoundManager.playBGM("GameClearMusic.mp3", false);
+
+            javafx.application.Platform.runLater(() -> {
+                root.getChildren().add(new WinOverlay(stage, this, root, isFromLevels));
+            });
         }
+
     }
 
     /**

@@ -116,14 +116,5 @@ public class Renderer {
                 e.render(gc);
             }
         }
-
-        // Nhắc nhở trạng thái.
-        switch (state) {
-            case MENU -> drawBanner("PRESS SPACE TO START");
-            case PAUSED -> drawBanner("PAUSED – PRESS P TO RESUME");
-            case GAME_OVER -> drawBanner("GAME OVER – PRESS SPACE TO RESTART");
-            case WIN -> drawBanner("YOU WIN! – PRESS SPACE TO RESTART");
-            default -> {}
-        }
     }
 }

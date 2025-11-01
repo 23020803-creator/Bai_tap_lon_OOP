@@ -20,7 +20,7 @@ public class LevelSelectScreen {
     private final Scene gameScene;
 
     // Số lượng level, có thể chỉnh tùy ý
-    private static final int TOTAL_LEVELS = 4;
+    private static final int TOTAL_LEVELS = 8;
 
     public LevelSelectScreen(Stage stage, GameManager gameManager, Scene gameScene) {
         this.stage = stage;
@@ -49,7 +49,7 @@ public class LevelSelectScreen {
         int row = 0;
         for (int i = 1; i <= TOTAL_LEVELS; i++) {
             String levelName = "Level" + i;
-            Button btn = createLevelButton(levelName, "/images_levelselectscreen/Level" + i + "Button.png", 120, 120);
+            Button btn = createLevelButton(levelName, "/images/levelselectscreen/Level" + i + "Button.png", 120, 120);
             btn.setOnAction(e -> {
                 playClick();
                 gameManager.startLevelFromFile(levelName + ".txt");
