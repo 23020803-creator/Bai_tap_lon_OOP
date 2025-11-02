@@ -77,7 +77,7 @@ public final class Ball extends MovableObject {
         double norm = (getCenterX() - otherCenter) / half;  // chuẩn hóa [-1, 1]
 
         // Tham số góc min/max
-        final double THETA_MIN = 0  // 0°
+        final double THETA_MIN = 0;  // 0°
         final double THETA_MAX = 75.0 * Math.PI/180;  // 75°
         final double GAMMA = 1.35;                // độ lệch nhẹ
 
