@@ -63,9 +63,9 @@ public final class Ball extends MovableObject {
     /**
      * Xử lý bóng bật lại khi va chạm với paddle.
      * Tính toán vị trí va chạm so với tâm paddle:
-     * - Nếu bóng chạm bên trái paddle → đi sang trái.
-     * - Nếu chạm bên phải paddle → đi sang phải.
-     * - Nếu ngay giữa → mặc định đi sang phải.
+     * - Nếu bóng chạm bên trái paddle: đi sang trái.
+     * - Nếu chạm bên phải paddle: đi sang phải.
+     * - Nếu ngay giữa: mặc định đi sang phải.
      * Bóng luôn bật ngược lên trên.
      */
     public void bounceOff(GameObject other) {

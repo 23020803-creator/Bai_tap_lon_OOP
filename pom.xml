@@ -154,7 +154,7 @@
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>org.example.btl_oop_arkanoidgame/org.example.btl_oop_arkanoidgame.HelloApplication</mainClass>
+                            <mainClass>com.arkanoid.ArkanoidApp</mainClass>
                             <launcher>app</launcher>
                             <jlinkZipName>app</jlinkZipName>
                             <jlinkImageName>app</jlinkImageName>

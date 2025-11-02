@@ -115,7 +115,7 @@ public class MenuScreen {
             iv.setPreserveRatio(false);
             btn.setGraphic(iv);
         } catch (Exception ignored) {
-            // nếu thiếu file ảnh thì vẫn hiển thị text (dễ debug)
+            // nếu thiếu file ảnh thì vẫn hiển thị text
         }
 
         // Ẩn hoàn toàn text

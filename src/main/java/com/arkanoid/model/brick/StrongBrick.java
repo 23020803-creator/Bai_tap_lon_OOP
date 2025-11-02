@@ -34,10 +34,6 @@ public final class StrongBrick extends Brick {
         gc.fillRect(getX(), getY(), getWidth(), getHeight());
         gc.setStroke(Color.BLACK);
         gc.strokeRect(getX(), getY(), getWidth(), getHeight());
-
-        // hiển thị số lần hit còn lại
-        gc.setFill(Color.WHITE);
-        gc.fillText(String.valueOf(hit), getX() + getWidth() / 2 - 4, getY() + getHeight() / 2 + 4);
     }
 }
 

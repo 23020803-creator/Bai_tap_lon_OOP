@@ -562,13 +562,6 @@ public final class GameManager {
         }
 
         // Kiểm tra thắng
-        boolean anyBreakableLeft = false;
-        for (Brick b : bricks) {
-            if (!(b instanceof UnbreakableBrick)) {
-                anyBreakableLeft = true;
-                break;
-            }
-        }
         // Nếu không còn gạch (tất cả đã bị loại hoặc chỉ còn unbreakable)
         boolean allDestroyedOrUnbreakable = true;
         for (Brick b : bricks) {
