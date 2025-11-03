@@ -182,6 +182,7 @@ public final class Ball extends MovableObject {
     public void resetSpeed() {
         speedBoostLevel = 0;
         speedBoostTimer = 0;
+        setTargetSpeed(baseSpeed, 0.5);
         updateSpeedByLevel();
     }
 

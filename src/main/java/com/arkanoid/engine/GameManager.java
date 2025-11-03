@@ -9,7 +9,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.canvas.GraphicsContext;
-import com.arkanoid.engine.ScoreManager;
 
 import javafx.scene.image.Image;
 import java.io.BufferedReader;
@@ -194,7 +193,7 @@ public final class GameManager {
                 Config.VIEW_HEIGHT - 60,
                 Config.PADDLE_WIDTH,
                 Config.PADDLE_HEIGHT,
-                Config.PADDLE_SPEED + Config.BALL_SPEED_MULTIPLIER
+                Config.PADDLE_SPEED + Config.BALL_SPEED_BONUS
         );
 
         balls.clear();
@@ -203,7 +202,7 @@ public final class GameManager {
                 paddle.getY() - Config.BALL_SIZE - 2,
                 Config.BALL_SIZE,
                 Config.BALL_SIZE,
-                Config.BALL_SPEED + Config.PADDLE_SPEED_MULTIPLIER
+                Config.BALL_SPEED + Config.PADDLE_SPEED_BONUS
         );
         balls.add(b0);
     }
@@ -219,13 +218,17 @@ public final class GameManager {
             Ball clone = new Ball(
                     ref.getX(), ref.getY(),
                     ref.getWidth(), ref.getHeight(),
-                    Math.hypot(ref.getDx(), ref.getDy())
+                    ref.getSpeed()
             );
-            // Bóng tạo ra bắn lệch hướng & tốc độ để tách quỹ đạo
-            double fx = (i == 0 ? 1.7 : 0.3);
-            double fy = (i == 0 ? 0.3 : 1.7);
-            clone.setDx(ref.getDx() * fx);
-            clone.setDy(ref.getDy() * fy);
+
+            //Xoay hướng lệch ±30°
+            double angle = Math.atan2(ref.getDy(), ref.getDx());
+            double offset = (i == 0 ? Math.toRadians(30) : -Math.toRadians(30)); // ±30°
+            double newDx = ref.getSpeed() * Math.cos(angle + offset);
+            double newDy = ref.getSpeed() * Math.sin(angle + offset);
+
+            clone.setDx(newDx);
+            clone.setDy(newDy);
             balls.add(clone);
         }
     }

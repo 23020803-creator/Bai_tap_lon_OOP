@@ -145,18 +145,18 @@ public final class PauseOverlay extends VBox {
         switch (value) {
             case "EASY" -> {
                 Config.CURRENT_DIFFICULTY = Config.Difficulty.EASY;
-                Config.BALL_SPEED_MULTIPLIER = -2;
-                Config.PADDLE_SPEED_MULTIPLIER = 0;
+                Config.BALL_SPEED_BONUS = -2;
+                Config.PADDLE_SPEED_BONUS = 0;
             }
             case "HARD" -> {
                 Config.CURRENT_DIFFICULTY = Config.Difficulty.HARD;
-                Config.BALL_SPEED_MULTIPLIER = 4;
-                Config.PADDLE_SPEED_MULTIPLIER = 2;
+                Config.BALL_SPEED_BONUS = 4;
+                Config.PADDLE_SPEED_BONUS = 2;
             }
             default -> {
                 Config.CURRENT_DIFFICULTY = Config.Difficulty.NORMAL;
-                Config.BALL_SPEED_MULTIPLIER = 0;
-                Config.PADDLE_SPEED_MULTIPLIER = 0;
+                Config.BALL_SPEED_BONUS = 0;
+                Config.PADDLE_SPEED_BONUS = 0;
             }
         }
     }

@@ -21,7 +21,7 @@ public final class Config {
 
     // Cấu hình quả bóng (Ball)
     public static final int BALL_SIZE = 12;
-    public static final int BALL_SPEED = 3;
+    public static final int BALL_SPEED = 4;
 
     // Cấu hình khối gạch (Brick)
     public static final int BRICK_ROWS = 6;
@@ -43,9 +43,9 @@ public final class Config {
     public static double BGM_VOLUME = 0.7;
     public static double SFX_VOLUME = 1.0;
 
-    // Tốc độ mặc định của paddle và ball
-    public static double BALL_SPEED_MULTIPLIER = 1.0;
-    public static double PADDLE_SPEED_MULTIPLIER = 1.0;
+    // Hệ số cộng tốc độ bóng
+    public static double BALL_SPEED_BONUS = 0;
+    public static double PADDLE_SPEED_BONUS = 0;
 
     // Độ khó
     public enum Difficulty { EASY, NORMAL, HARD }
