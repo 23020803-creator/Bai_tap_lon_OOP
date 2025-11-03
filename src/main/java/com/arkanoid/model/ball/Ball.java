@@ -19,6 +19,11 @@ public final class Ball extends MovableObject {
     private int directionY = -1;   // Hướng dọc: -1 đi lên, +1 đi xuống
     private int speedBoostLevel;  // cấp độ của tốc độ bóng
     private int speedBoostTimer; // Thời gian hiệu lực
+    private double targetSpeed;    // tốc độ mong muốn (mục tiêu)
+    private double acceleration;   // mức thay đổi mỗi frame
+    private static final double SMOOTH_ACC = 0.2;
+    private static final int TRAIL_LENGTH = 10; // số điểm đuôi cần lưu
+    private final java.util.LinkedList<double[]> trailPoints = new java.util.LinkedList<>();
 
     /**
      * Khởi tạo bóng với vị trí, kích thước và tốc độ ban đầu.
@@ -27,6 +32,8 @@ public final class Ball extends MovableObject {
         super(x, y, w, h);
         this.speed = speed;
         this.baseSpeed = speed;
+        this.targetSpeed = speed;
+        this.acceleration = 0;
         this.speedBoostTimer = 0;
         this.speedBoostLevel = 0;
         setSpeed(speed);
@@ -108,7 +115,23 @@ public final class Ball extends MovableObject {
      */
     @Override
     public void update() {
+        // Làm mượt tốc độ
+        if (Math.abs(speed - targetSpeed) > 0.01) {
+            // Tăng hoặc giảm dần để đạt targetSpeed
+            if (speed < targetSpeed) {
+                speed = Math.min(speed + acceleration, targetSpeed);
+            } else {
+                speed = Math.max(speed - acceleration, targetSpeed);
+            }
+            setSpeed(speed); // Cập nhật lại vector dx, dy
+        }
+
         move();
+        trailPoints.addFirst(new double[]{getX() + getWidth() / 2.0, getY() + getHeight() / 2.0});
+        if (trailPoints.size() > TRAIL_LENGTH) {
+            trailPoints.removeLast(); // Giữ độ dài tối đa
+        }
+
         if (speedBoostTimer > 0) {
             speedBoostTimer--;
             if (speedBoostTimer <= 0) {
@@ -139,7 +162,18 @@ public final class Ball extends MovableObject {
             speedBoostLevel ++;
         }
         this.speedBoostTimer += Config.DURATION_PER_POWERUP;
-        updateSpeedByLevel();
+
+        if (speedBoostLevel >= 2) {
+            return;
+        }
+
+        // Mục tiêu tốc độ tương ứng
+        double target = switch (speedBoostLevel) {
+            case 1 -> baseSpeed + 2;
+            case 2 -> baseSpeed + 4;
+            default -> baseSpeed;
+        };
+        setTargetSpeed(target, 0.5); // tăng dần tốc độ trong 0.5 giây
     }
 
     /**
@@ -153,6 +187,24 @@ public final class Ball extends MovableObject {
 
     @Override
     public void render(GraphicsContext gc) {
+        double radius = getWidth() / 2.0;
+
+        // Vẽ đuôi bóng
+        int i = 0;
+        for (double[] p : trailPoints) {
+            double alpha = 1.0 - (double) i / TRAIL_LENGTH; // mờ dần
+            double size = getWidth() * (1.0 - 0.4 * i / TRAIL_LENGTH); // nhỏ dần
+            double x = p[0] - size / 2.0;
+            double y = p[1] - size / 2.0;
+
+            gc.setGlobalAlpha(alpha * 0.5);
+            gc.setFill(Color.rgb(255, 180, 180));
+            gc.fillOval(x, y, size, size);
+
+            i++;
+        }
+        gc.setGlobalAlpha(1.0); // reset alpha
+
         // Vẽ bóng hình tròn màu hồng nhạt
         gc.setFill(Color.rgb(240, 140, 140));
         gc.fillOval(getX(), getY(), getWidth(), getHeight());
@@ -177,6 +229,18 @@ public final class Ball extends MovableObject {
             dx = this.speed * directionX;
             dy = this.speed * directionY;
         }
+    }
+
+    /**
+     * Đặt tốc độ mục tiêu và tốc độ tăng dần để đạt tới nó.
+     * @param newSpeed tốc độ mong muốn
+     * @param smoothness hệ số làm mượt (số frame để đạt mục tiêu)
+     */
+    public void setTargetSpeed(double newSpeed, double smoothness) {
+        this.targetSpeed = Math.max(1, newSpeed);
+        double diff = Math.abs(targetSpeed - speed);
+        // Tốc độ thay đổi mỗi frame
+        this.acceleration = diff / (smoothness * 60.0);// đạt trong 0.5s
     }
 }
 
