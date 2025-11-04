@@ -19,7 +19,7 @@ Nếu bạn đã từng chơi Arkanoid, bạn sẽ cảm thấy quen thuộc v�
         + ExpandPaddle: tăng kích thước Paddle.
         + FastBall: tăng tốc độ bóng.
         + ExtraLife: thêm mạng.
-        + MultiBall: tạo thêm nhiều bóng cùng lúc.
+        + TripleBall: tạo thêm ba bóng cùng lúc.
 
 * Nhóm đối tượng tĩnh:
   1. Wall/Border (Tường): Tường bao quanh màn hình chơi, không cho Ball thoát ra (trừ cạnh dưới - nơi chúng ta thiết lập Paddle để che chắn).
@@ -28,9 +28,10 @@ Nếu bạn đã từng chơi Arkanoid, bạn sẽ cảm thấy quen thuộc v�
     - Có nhiều loại Brick:
       + NormalBrick: bị phá sau 1 lần va chạm.
       + StrongBrick: cần nhiều lần va chạm mới phá hủy.
-      + SpecialBrick: khi phá có thể sinh ra Power-up.
+      + ExplodeBrick: gạch nổ theo hàng hoặc theo cột.
+      + UnbreakableBrick: gạch không bị phá hủy.
 * Ngoài hai nhóm đối tượng chính, chúng ta còn có nhóm đối tượng quản lý:
-  1. GameManager hoặc GameEngine:
+  1. GameManager:
     - Quản lý toàn bộ trạng thái trò chơi: Paddle, Ball, danh sách Brick, Power-up, điểm số, mạng.
     - Kiểm tra va chạm, xử lý logic thắng/thua. - Quản lý vòng đời game: start, pause, game over.
   2. Renderer (Bộ vẽ):
@@ -71,9 +72,11 @@ Trong một màn chơi, người chơi sẽ điều khiển Paddle để giữ c
 Trong quá trình thực hiện, sinh viên được phép bổ sung thêm các lớp và hàm cần thiết, cũng như tùy chỉnh cấu trúc chương trình. Có thể sử dụng thêm các thư viện Java bên ngoài nếu cần. Khuyến khích sinh viên sử dụng các công nghệ, thư viện nâng cao để trau dồi kỹ năng.
 # Sơ đồ thiết kế các lớp
 <img width="4618" height="5472" alt="diagram" src="https://github.com/user-attachments/assets/0b97ad3c-2481-40e5-8751-92f7832bb6e5" />
+
 # Phân công công việc
 1. Trịnh Văn Giang: Quản lý Paddle từ backend đến frontend, Gameloop, Renderer Paddle, quản lý class Renderer.
 2. Lê Thanh Hoàng: Quản lý Ball từ backend đến frontend, PowerUp System, Renderer Ball và PowerUp, hiệu ứng âm thanh.
 3. Nguyễn Anh Dũng: Quản lý Brick từ backend đến frontend, Renderer các loại Brick, màn hình menu, thiết lập các màn chơi.
+
 
 
