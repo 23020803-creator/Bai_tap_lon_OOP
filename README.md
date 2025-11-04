@@ -70,10 +70,10 @@ Trong một màn chơi, người chơi sẽ điều khiển Paddle để giữ c
 # Yêu cầu chung
 Trong quá trình thực hiện, sinh viên được phép bổ sung thêm các lớp và hàm cần thiết, cũng như tùy chỉnh cấu trúc chương trình. Có thể sử dụng thêm các thư viện Java bên ngoài nếu cần. Khuyến khích sinh viên sử dụng các công nghệ, thư viện nâng cao để trau dồi kỹ năng.
 # Sơ đồ thiết kế các lớp
-<img width="3130" height="4826" alt="Bai_tap_lon_OOP" src="https://github.com/user-attachments/assets/e2f71315-637d-45cf-960a-6ed96c1a4f8d" />
-
+<img width="4618" height="5472" alt="diagram" src="https://github.com/user-attachments/assets/0b97ad3c-2481-40e5-8751-92f7832bb6e5" />
 # Phân công công việc
 1. Trịnh Văn Giang: Quản lý Paddle từ backend đến frontend, Gameloop, Renderer Paddle, quản lý class Renderer.
 2. Lê Thanh Hoàng: Quản lý Ball từ backend đến frontend, PowerUp System, Renderer Ball và PowerUp, hiệu ứng âm thanh.
 3. Nguyễn Anh Dũng: Quản lý Brick từ backend đến frontend, Renderer các loại Brick, màn hình menu, thiết lập các màn chơi.
+
 
